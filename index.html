@@ -2,13 +2,20 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>AutonomyWorks Workflow</title>
+  <title>AutonomyWorks Workflow (All Changes Integrated)</title>
+
+  <!-- Example of including FontAwesome for icons -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
   >
+
   <style>
-    /* Basic reset / general styling */
+    /* 
+      ------------------------------------------------
+      Global & Layout
+      ------------------------------------------------
+    */
     * {
       box-sizing: border-box;
     }
@@ -19,16 +26,23 @@
       font-family: 'Segoe UI', sans-serif;
     }
 
-    /* LOADING OVERLAY (for Start/Stop tasks) */
+    /* 
+      ------------------------------------------------
+      LOADING OVERLAY for Start/Stop tasks 
+      (with spinner)
+      ------------------------------------------------
+    */
     #loadingOverlay {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0; 
+      left: 0;
+      width: 100%;
+      height: 100%;
       display: none; /* toggled on/off in code */
-      align-items: center; 
-      justify-content: center; 
-      background-color: rgba(0, 0, 0, 0.4);
-      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0,0,0,0.4);
+      z-index: 9999; /* above everything else */
     }
     #loadingOverlay .loadingContent {
       background: white;
@@ -42,25 +56,30 @@
       align-items: center;
     }
     .bigSpinner {
-      width: 40px; 
+      width: 40px;
       height: 40px;
-      border: 5px solid #f3f3f3;
+      border: 5px solid #f3f3f3; 
       border-top: 5px solid #333;
       border-radius: 50%;
       animation: spin 0.9s linear infinite;
       margin-bottom: 15px;
     }
     @keyframes spin {
-      0% { transform: rotate(0deg); }
+      0%   { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
 
-    /* LOGIN OVERLAY */
+    /* 
+      ------------------------------------------------
+      LOGIN OVERLAY 
+      (username, password, login button)
+      ------------------------------------------------
+    */
     #loginOverlay {
-      position: absolute; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
       height: 100%;
       background:
         radial-gradient(ellipse at center, rgba(20,30,60,0.15) 0%, rgba(20,40,70,0.8) 70%, rgba(20,40,70,1) 100%),
@@ -70,7 +89,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 1000; 
     }
     .login-container {
       background: rgba(255,255,255,0.94);
@@ -81,8 +100,8 @@
       text-align: center;
     }
     .login-header {
-      display: flex; 
-      align-items: center; 
+      display: flex;
+      align-items: center;
       justify-content: center;
       font-size: 24px;
       color: #0d3b66;
@@ -132,47 +151,50 @@
       border-radius: 50%;
       animation: wave 1.2s infinite ease-in-out;
     }
-    #loginSpinner .dot:nth-child(1) {
-      animation-delay: 0s;
-    }
-    #loginSpinner .dot:nth-child(2) {
-      animation-delay: 0.12s;
-    }
-    #loginSpinner .dot:nth-child(3) {
-      animation-delay: 0.24s;
-    }
+    #loginSpinner .dot:nth-child(1){ animation-delay: 0s; }
+    #loginSpinner .dot:nth-child(2){ animation-delay: 0.12s; }
+    #loginSpinner .dot:nth-child(3){ animation-delay: 0.24s; }
     @keyframes wave {
-      0%, 60%, 100% { transform: translateY(0); }
-      30% { transform: translateY(-8px); }
+      0%,60%,100%{ transform:translateY(0); }
+      30%{ transform:translateY(-8px); }
     }
 
-    /* MAIN TASK SCREEN */
+    /* 
+      ------------------------------------------------
+      MAIN TASK SCREEN 
+      (after login)
+      ------------------------------------------------
+    */
     #taskScreen {
       display: none; 
       width: 100%; 
       height: 100%;
       background-color: #f0f0f0;
-      overflow: auto; 
       padding: 20px;
       position: relative;
-      z-index: 1;
+      overflow: auto;
+      z-index: 1; /* behind the loading overlay if shown */
+    }
+    #notificationBar {
+      display: none;
+      width: 100%;
+      text-align: center;
+      font-weight: 600;
+      padding: 8px 0;
+      margin-bottom: 10px;
     }
     #greeting {
       text-align: center;
-      margin: 0 auto 20px auto;
-      font-size: 22px; 
+      margin: 0 auto 20px;
+      font-size: 22px;
       color: #1d3330;
     }
-    #notificationBar {
-      display: none; 
-      width: 100%; 
-      text-align: center; 
-      font-weight: 600; 
-      padding: 8px 0; 
-      margin-bottom: 10px;
-    }
 
-    /* Start Task button: short but wide */
+    /* 
+      ------------------------------------------------
+      Start Task button (short/wide)
+      ------------------------------------------------
+    */
     #startTaskBtn {
       width: 240px;
       height: 45px;
@@ -181,7 +203,7 @@
     .spinner-wheel {
       display: none;
       margin: 10px auto;
-      width: 30px; 
+      width: 30px;
       height: 30px;
       border: 4px solid #f3f3f3;
       border-top: 4px solid #333;
@@ -189,46 +211,54 @@
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0%   { transform:rotate(0deg); }
+      100% { transform:rotate(360deg); }
     }
 
-    /* Task detail grid */
+    /* 
+      ------------------------------------------------
+      Task details area (2 columns, responsive)
+      ------------------------------------------------
+    */
     .details-grid {
-      display: grid; 
-      grid-template-columns: 1fr 1fr; 
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
-      max-width: 800px; 
-      margin: 0 auto; 
+      max-width: 800px;
+      margin: 0 auto;
       background: #fff;
-      padding: 20px; 
+      padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    @media(max-width: 600px) {
+    @media (max-width: 600px) {
       .details-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    /* STOP TASK section */
+    /*
+      ------------------------------------------------
+      STOP TASK: statuses, notes, button
+      ------------------------------------------------
+    */
     #statusOptions {
       display: none;
-      margin: 20px auto; 
-      max-width: 800px; 
+      margin: 20px auto;
+      max-width: 800px;
       text-align: center;
     }
     .status-container {
-      display: flex; 
-      justify-content: center; 
+      display: flex;
+      justify-content: center;
       gap: 20px;
       margin-top: 20px;
     }
-    /* Associate notes: wide, but fewer rows => shorter in height. */
     #notes {
       display: none;
-      width: 80%;       /* wide */
-      height: 50px;     /* short in height */
+      width: 80%;    /* wide */
+      height: 50px;  /* short height */
+      margin-top: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
       padding: 8px;
@@ -237,12 +267,12 @@
       transition: border 0.2s;
     }
     .stop-task-container {
-      margin-top: 20px; /* place below statuses and notes */
+      margin-top: 20px;
     }
     .stop-btn {
-      width: 150px; 
+      width: 150px;
       height: 40px;
-      font-size: 15px; 
+      font-size: 15px;
       font-weight: 600;
       background: #b2ebf2;
       color: #00332d;
@@ -256,7 +286,7 @@
     #stopSpinner {
       display: none;
       margin: 10px auto;
-      width: 30px; 
+      width: 30px;
       height: 30px;
       border: 4px solid #f3f3f3;
       border-top: 4px solid #333;
@@ -264,30 +294,39 @@
       animation: spin 0.8s linear infinite;
     }
 
-    /* ON CALL MODAL */
+    /* 
+      ------------------------------------------------
+      ON CALL MODAL 
+      ------------------------------------------------
+    */
     #onCallModal {
-      display: none; 
-      position: fixed; 
-      top: 50%; 
+      display: none;
+      position: fixed;
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: white; 
-      padding: 20px; 
+      background: white;
+      padding: 20px;
       border-radius: 14px;
       box-shadow: 0 10px 28px rgba(0,0,0,0.25);
-      text-align: center; 
-      max-width: 90vw; 
+      text-align: center;
       width: 600px;
-      font-family:'Segoe UI', sans-serif;
+      max-width: 90vw;
+      font-family: 'Segoe UI', sans-serif;
       z-index: 2000;
     }
     iframe {
-      width: 100%; 
-      height: 400px; 
+      width: 100%;
+      height: 400px;
       border: none;
     }
 
-    /* Logout link at bottom, centered, smaller font */
+    /* 
+      ------------------------------------------------
+      Logout link 
+      (bottom, centered)
+      ------------------------------------------------
+    */
     .logout-link {
       position: fixed;
       bottom: 10px;
@@ -309,7 +348,7 @@
 </head>
 <body>
 
-<!-- LOADING OVERLAY -->
+<!-- LOADING OVERLAY (spinner) -->
 <div id="loadingOverlay">
   <div class="loadingContent">
     <div class="bigSpinner"></div>
@@ -345,10 +384,10 @@
     <div id="startSpinner" class="spinner-wheel"></div>
   </div>
 
-  <!-- Task details -->
-  <div id="taskDetail" style="margin-top: 20px;"></div>
+  <!-- Task details area -->
+  <div id="taskDetail" style="margin-top:20px;"></div>
 
-  <!-- Stop Task area -->
+  <!-- STOP TASK container: statuses + notes + button -->
   <div id="statusOptions">
     <div class="status-container">
       <label>
@@ -367,8 +406,8 @@
 
     <textarea
       id="notes"
-      placeholder="Associate Notes"
-    ></textarea>
+      placeholder="Associate Notes">
+    </textarea>
 
     <div class="stop-task-container">
       <button class="stop-btn" onclick="stopTask()">Stop Task</button>
@@ -385,7 +424,7 @@
     On Call: Please refresh every five minutes. 
     If you are still On Call after 15 minutes, please reach out to your Lead.
   </h3>
-  <!-- The Dino game can generate CSP warnings, but doesn't block your code -->
+  <!-- This iframe can produce CSP warnings, but doesn't block your code -->
   <iframe src="https://chromedino.com/" allowfullscreen></iframe>
   <p style="line-height:1.4;">
     You can close this game or hit “Refresh” to check for tasks again.
@@ -394,23 +433,31 @@
 </div>
 
 <script>
-/* 
-   ============================
-   CONFIG / GLOBALS
-   ============================
-   - Separate link for "Backend" tab => "https://sheetdb.io/api/v1/y49ke3tx521c6?sheet=Backend"
-   - Original link for Task Data => "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20Data"
-   - Original link for Task History => "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20History"
+/*
+  ============================
+  CONFIG / GLOBALS
+  ============================
+  We'll do simple row insertion for each start or stop event:
+   - Insert row into "Backend": https://sheetdb.io/api/v1/y49ke3tx521c6?sheet=Backend
+   - Insert row into "Task Data": https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20Data
+   - Insert row into "Task History": https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20History
+
+  No partial updates. No searching. No patching.
+  Each event creates new lines with the relevant columns (Job Code, Status, etc.).
+
+  If you want to override older rows, 
+  that must be done via Apps Script, 
+  which runs in your "Workflow Assignments" Google Sheet itself.
 */
 
-const BACKEND_URL       = "https://sheetdb.io/api/v1/y49ke3tx521c6?sheet=Backend";
-const TASK_DATA_URL     = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20Data";
-const TASK_HISTORY_URL  = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20History";
+const BACKEND_URL      = "https://sheetdb.io/api/v1/y49ke3tx521c6?sheet=Backend";
+const TASK_DATA_URL    = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20Data";
+const TASK_HISTORY_URL = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20History";
 
-const LASALLE_POD_URL    = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=LaSalle%20Pod";
-const QUESTION_ASSOC_URL = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Question%20Associates";
+const LASALLE_POD_URL  = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=LaSalle%20Pod";
+const QUESTION_ASSOC_URL= "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Question%20Associates";
 
-const HARDCODED_PASS     = "abc123"; // For demo only
+const HARDCODED_PASS   = "abc123";
 
 let userFullName = "";
 let tasks        = [];
@@ -421,424 +468,377 @@ let startTime    = null;
 /* ============================
    HELPER / UTILITY
    ============================ */
+
+/** 
+ * Set a notification message in #notificationBar,
+ * with an optional isError boolean for red text. 
+ */
 function setNotification(msg, isError=false) {
   const bar = document.getElementById("notificationBar");
-  if (!msg) {
-    bar.style.display = "none";
-    bar.innerText     = "";
+  if(!msg) {
+    bar.style.display="none";
+    bar.innerText = "";
     return;
   }
-  bar.style.display = "block";
-  bar.style.color   = isError ? "red" : "#0f5132";
-  bar.innerText     = msg;
+  bar.style.display="block";
+  bar.style.color=isError?"red":"#0f5132";
+  bar.innerText=msg;
 }
 
-function highlightInput(inputId, shouldHighlight) {
-  const el = document.getElementById(inputId);
-  if (!el) return;
-  if (shouldHighlight) el.classList.add("input-error");
+/** 
+ * Add or remove the .input-error class from an input 
+ */
+function highlightInput(id, shouldHighlight){
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(shouldHighlight)el.classList.add("input-error");
   else el.classList.remove("input-error");
 }
 
-/** Show/hide the big loading overlay. */
-function showLoading(isVisible) {
-  document.getElementById("loadingOverlay").style.display = isVisible ? "flex" : "none";
+/** 
+ * Show or hide the big loading overlay 
+ */
+function showLoading(show) {
+  document.getElementById("loadingOverlay").style.display = show ? "flex" : "none";
 }
 
-/** Format a Date => "MM/DD/YYYY HH:mm:ss" */
+/** 
+ * Format Date => "MM/DD/YYYY HH:MM:SS" 
+ */
 function formatDateTime(d) {
-  if (!(d instanceof Date)) return "";
-  const pad = x => (x < 10 ? "0"+x : ""+x);
-  const mm   = pad(d.getMonth()+1);
-  const dd   = pad(d.getDate());
-  const yyyy = d.getFullYear();
-  const hh   = pad(d.getHours());
-  const min  = pad(d.getMinutes());
-  const sec  = pad(d.getSeconds());
-  return `${mm}/${dd}/${yyyy} ${hh}:${min}:${sec}`;
-}
-
-/** Return "H:MM:SS" difference. */
-function computeCumulativeTime(start, stop) {
-  if (!start || !stop) return "";
-  const diffMs   = stop - start;
-  const totalSec = Math.floor(diffMs / 1000);
-  const hours    = Math.floor(totalSec / 3600);
-  const mins     = Math.floor((totalSec % 3600) / 60);
-  const secs     = totalSec % 60;
-  const pad      = x => (x < 10 ? "0"+x : ""+x);
-  return `${hours}:${pad(mins)}:${pad(secs)}`;
-}
-
-/*
-  Overwrite the row in the "Backend" tab by searching "Job Code:". 
-  We'll add "/search?search_by=Job%20Code:&update_only=true" to BACKEND_URL.
-*/
-async function patchBackend(jobCode, newStatus, timeValue) {
-  // For example: 
-  // POST https://sheetdb.io/api/v1/y49ke3tx521c6?sheet=Backend/search?search_by=Job%20Code:&update_only=true
-  // with data => { "Job Code:": jobCode, "Current Status:": newStatus, "Time:": timeValue }
-  const searchUrl = BACKEND_URL + "/search?search_by=Job%20Code:&update_only=true";
-  const bodyData  = {
-    data: [{
-      "Job Code:":       jobCode,
-      "Current Status:": newStatus,
-      "Time:":           timeValue
-    }]
-  };
-  const resp = await fetch(searchUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(bodyData)
-  });
-  if (!resp.ok) {
-    throw new Error(`[patchBackend] => ${resp.status} ${resp.statusText}`);
-  }
-}
-
-/*
-  Overwrite a row in the "Task Data" or "Task History" tab 
-  searching by (Associate, Job Code).
-*/
-async function patchTaskData(assocName, jobCode, fieldsObj) {
-  const searchUrl = TASK_DATA_URL 
-    + `/search?Associate=${encodeURIComponent(assocName)}&Job%20Code=${encodeURIComponent(jobCode)}&update_only=true`;
-  const body = {
-    data: [{
-      "Associate:": assocName,
-      "Job Code:":  jobCode,
-      ...fieldsObj
-    }]
-  };
-  const resp = await fetch(searchUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!resp.ok) {
-    throw new Error(`[patchTaskData] => ${resp.status} ${resp.statusText}`);
-  }
-}
-
-async function patchTaskHistory(assocName, jobCode, fieldsObj) {
-  const searchUrl = TASK_HISTORY_URL
-    + `/search?Associate=${encodeURIComponent(assocName)}&Job%20Code=${encodeURIComponent(jobCode)}&update_only=true`;
-  const body = {
-    data: [{
-      "Associate:": assocName,
-      "Job Code:":  jobCode,
-      ...fieldsObj
-    }]
-  };
-  const resp = await fetch(searchUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!resp.ok) {
-    throw new Error(`[patchTaskHistory] => ${resp.status} ${resp.statusText}`);
-  }
-}
-
-/*
-  Build a set of fields for updating "Task Data"/"Task History" columns:
-   - "Start Time:", "Stop Time:", "Associate Notes:", "Cumulative Time:", etc.
-*/
-function buildFields(taskObj, startStr, stopStr, cTimeStr, status, notes) {
-  return {
-    "Update:":          "FALSE",
-    "Start Time:":      startStr || "",
-    "Stop Time:":       stopStr  || "",
-    "Priority:":        taskObj["Priority:"]        || "",
-    "Status:":          status,
-    "Client:":          taskObj["Client:"]          || "",
-    "Task:":            taskObj["Task:"]            || "",
-    "Deliverable Name:":taskObj["Deliverable Name:"]|| "",
-    "Deliverable ID:":  taskObj["Deliverable ID:"]  || "",
-    "Parameter 1:":     taskObj["Parameter 1:"]     || "",
-    "Parameter 2:":     taskObj["Parameter 2:"]     || "",
-    "Production Notes:":taskObj["Production Notes:"] || "",
-    "Due Time:":        taskObj["Due Time:"]        || "",
-    "Due Date:":        taskObj["Due Date:"]        || "",
-    "Associate Notes:": notes || "",
-    "Cumulative Time:": cTimeStr || ""
-  };
+  if(!(d instanceof Date))return"";
+  const pad=n=>(n<10?"0"+n:""+n);
+  const mm=pad(d.getMonth()+1), dd=pad(d.getDate()), yy=d.getFullYear();
+  const hh=pad(d.getHours()), mn=pad(d.getMinutes()), sc=pad(d.getSeconds());
+  return `${mm}/${dd}/${yy} ${hh}:${mn}:${sc}`;
 }
 
 /** 
- * "Direct Questions To:" => from "Question Associates" 
-*/
-async function findDirectQuestion(clientName) {
-  if (!clientName) return "";
+ * Return "H:MM:SS" difference between two Date objects 
+ */
+function computeCumulativeTime(st,sp){
+  if(!st||!sp)return"";
+  const diff=sp-st,sec=Math.floor(diff/1000);
+  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  const pad=n=>(n<10?"0"+n:n);
+  return`${h}:${pad(m)}:${pad(s)}`;
+}
+
+/** 
+ * Insert a single new row to the given URL with the rowObj data.
+ */
+async function insertRow(url, rowObj) {
+  const resp=await fetch(url, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ data:[ rowObj ] })
+  });
+  if(!resp.ok)throw new Error(`${resp.status} ${resp.statusText}`);
+}
+
+/** 
+ * Fetch the "Direct Questions To:" contact from QUESTION_ASSOC_URL,
+ * using "Client:" name as a lookup key.
+ */
+async function findDirectQuestion(clientName){
+  if(!clientName)return"";
   try {
-    const qaRes  = await fetch(QUESTION_ASSOC_URL);
-    const qaData = await qaRes.json();
-    if (!Array.isArray(qaData)) return "";
-    const row = qaData.find(r => (r.Client||"").trim().toLowerCase() === clientName.toLowerCase());
-    if (!row) return "";
-    return row["Primary Contact"] || row["Secondary Contact"] || row["Backup Contact"] || "";
-  } catch(e) {
-    console.error("findDirectQuestion =>", e);
-    return "";
+    const r=await fetch(QUESTION_ASSOC_URL);
+    const j=await r.json();
+    if(!Array.isArray(j))return"";
+    const row=j.find(rr=>(rr.Client||"").trim().toLowerCase()===clientName.toLowerCase());
+    if(!row)return"";
+    return row["Primary Contact"]||row["Secondary Contact"]||row["Backup Contact"]||"";
+  }catch(e){
+    console.error("Error QAssoc =>", e);
+    return"";
   }
 }
 
 /** 
- * Reset the screen after stopping a task or logging out.
- * Clears radio statuses, notes, hides everything.
-*/
-function resetScreen() {
-  document.getElementById("statusOptions").style.display = "none";
-  const notesEl = document.getElementById("notes");
-  notesEl.value = "";
-  notesEl.style.display = "none";
-  currentTask = null;
-  startTime   = null;
-  document.getElementById("taskDetail").innerHTML = "";
+ * Reset the screen after stopping or logging out:
+ * - Hide #statusOptions
+ * - Clear #notes and hide it
+ * - Clear currentTask, startTime
+ * - Clear #taskDetail content
+ */
+function resetScreen(){
+  document.getElementById("statusOptions").style.display="none";
+  const note=document.getElementById("notes");
+  note.value="";
+  note.style.display="none";
+  currentTask=null;
+  startTime=null;
+  document.getElementById("taskDetail").innerHTML="";
 }
 
-/** Show #notes after selecting a stop status. */
-function statusChosen() {
-  document.getElementById("notes").style.display = "block";
+/** 
+ * Show the #notes area once a radio status is chosen.
+ */
+function statusChosen(){
+  document.getElementById("notes").style.display="block";
 }
 
 
 /* ============================
-   AUTH / LOGIN
+   AUTH / LOGIN 
    ============================ */
-function checkEnter(e) {
-  if (e.key === "Enter") {
-    login();
-  }
+
+/** 
+ * If user hits Enter in the username/password field, call login()
+ */
+function checkEnter(e){
+  if(e.key==="Enter")login();
 }
 
-async function login() {
+/** 
+ * Validate user input, fetch from LASALLE_POD_URL to confirm user exists, 
+ * then show #taskScreen if valid.
+ */
+async function login(){
   setNotification("");
-  const user    = document.getElementById("username").value.trim().toLowerCase();
-  const pass    = document.getElementById("password").value.trim();
-  const spinner = document.getElementById("loginSpinner");
-
+  const user=document.getElementById("username").value.trim().toLowerCase();
+  const pass=document.getElementById("password").value.trim();
   highlightInput("username", !user);
   highlightInput("password", !pass);
 
-  if (!user || !pass) {
-    setNotification("Username and Password are required.", true);
+  if(!user||!pass){
+    setNotification("Username and Password are required.",true);
     return;
   }
-  if (pass !== HARDCODED_PASS) {
-    setNotification("Invalid login credentials.", true);
+  if(pass!==HARDCODED_PASS){
+    setNotification("Invalid login credentials.",true);
     return;
   }
 
-  spinner.style.display = "block";
-  try {
-    const res  = await fetch(LASALLE_POD_URL);
-    const data = await res.json();
-    spinner.style.display = "none";
+  const spin=document.getElementById("loginSpinner");
+  spin.style.display="block";
+  try{
+    const r=await fetch(LASALLE_POD_URL);
+    const j=await r.json();
+    spin.style.display="none";
 
-    const found = data.find(
-      row => (row["Username"]||"").trim().toLowerCase() === user
-    );
-    if (!found) {
-      setNotification("User not found in LaSalle Pod.", true);
+    const found=j.find(row=>(row["Username"]||"").trim().toLowerCase()===user);
+    if(!found){
+      setNotification("User not found in LaSalle Pod.",true);
       return;
     }
-    const fName = (found["First Name"]||"").trim();
-    const lName = (found["Last Name"] ||"").trim();
-    userFullName = fName + " " + lName;
+    const fn=(found["First Name"]||"").trim();
+    const ln=(found["Last Name"]||"").trim();
+    userFullName=fn+" "+ln;
 
-    document.getElementById("greeting").textContent = `Hello, ${userFullName}!`;
-    document.getElementById("loginOverlay").style.display = "none";
-    document.getElementById("taskScreen").style.display   = "block";
-  } catch(e) {
-    spinner.style.display = "none";
-    if (e instanceof TypeError) {
-      setNotification("Network error - check your connection.", true);
+    document.getElementById("greeting").textContent="Hello, "+userFullName+"!";
+    document.getElementById("loginOverlay").style.display="none";
+    document.getElementById("taskScreen").style.display="block";
+  }catch(e){
+    spin.style.display="none";
+    if(e instanceof TypeError){
+      setNotification("Network error - check your connection.",true);
     } else {
-      setNotification("Error fetching login data: " + e.message, true);
+      setNotification("Error => "+e.message,true);
     }
   }
 }
 
 
 /* ============================
-   TASK START / REFRESH
+   START TASK / REFRESH
    ============================ */
-function startTaskClicked() {
+
+/** 
+ * Called when user clicks "Start Task" or "Refresh". 
+ * Show spinner, fetch ready tasks, etc.
+ */
+function startTaskClicked(){
   setNotification("");
-  document.getElementById("startTaskBtn").style.display = "none";
-  document.getElementById("startSpinner").style.display = "block";
+  document.getElementById("startTaskBtn").style.display="none";
+  document.getElementById("startSpinner").style.display="block";
   showLoading(true);
   loadReadyTasks();
 }
 
-async function loadReadyTasks() {
+/** 
+ * Fetch tasks from the BACKEND_URL, filter for (Associate=user, Status=Ready).
+ * If none => show on-call. If found => insert new row (status=Started).
+ */
+async function loadReadyTasks(){
   try {
-    // read the "Backend" tab from the new link
-    const res  = await fetch(BACKEND_URL);
-    const data = await res.json();
+    const r=await fetch(BACKEND_URL);
+    const data=await r.json();
 
-    // Filter tasks for the current user with status=Ready
-    tasks = data.filter(r => {
-      const assoc  = (r["Associate:"] || "").trim().toLowerCase();
-      const status = (r["Status:"]    || "").trim().toLowerCase();
-      return assoc === userFullName.toLowerCase() && status === "ready";
+    const lowerName=userFullName.toLowerCase();
+    tasks=data.filter(row=>{
+      const assoc=(row["Associate:"]||"").trim().toLowerCase();
+      const st=(row["Status:"]||"").trim().toLowerCase();
+      return assoc===lowerName && st==="ready";
     });
 
-    document.getElementById("startSpinner").style.display = "none";
+    document.getElementById("startSpinner").style.display="none";
     showLoading(false);
 
-    if (!tasks.length) {
+    if(!tasks.length){
       setNotification("You are on call. No tasks found.");
-      const startBtn = document.getElementById("startTaskBtn");
-      startBtn.style.display = "inline-block";
-      startBtn.innerText     = "Refresh";
-      document.getElementById("onCallModal").style.display = "block";
-      setTimeout(() => {
-        setNotification("Reminder: Please refresh every 5 mins.");
-      }, 300000);
+      const btn=document.getElementById("startTaskBtn");
+      btn.style.display="inline-block";
+      btn.innerText="Refresh";
+      document.getElementById("onCallModal").style.display="block";
+      setTimeout(()=>setNotification("Reminder: Please refresh every 5 mins."),300000);
       return;
     }
 
-    currentTask = tasks[0];
-    document.getElementById("onCallModal").style.display = "none";
-    document.getElementById("startTaskBtn").style.display = "none";
+    // We have at least 1 "Ready" task
+    currentTask=tasks[0];
+    document.getElementById("onCallModal").style.display="none";
+    document.getElementById("startTaskBtn").style.display="none";
 
-    await markTaskAsStarted(currentTask);
+    // Insert a new row => "Status:" = "Started", "Time:" = "Start: ..." in the BACKEND
+    const startNow=new Date();
+    startTime=startNow;
+    const startStr=formatDateTime(startNow);
+
+    await insertRow(BACKEND_URL,{
+      ...currentTask,
+      "Status:":"Started",
+      "Time:":"Start: "+startStr
+    });
+
+    // Also insert row to Task Data + Task History
+    const rowObj={
+      ...currentTask,
+      "Status:":"Started",
+      "Start Time:":startStr,
+      "Stop Time:":"",
+      "Cumulative Time:":"",
+      "Associate Notes":"",
+      "Update:":"FALSE"
+    };
+    await insertRow(TASK_DATA_URL, rowObj);
+    await insertRow(TASK_HISTORY_URL, rowObj);
+
+    // Now show the details of this task
     await displayTaskDetails(currentTask);
-    document.getElementById("statusOptions").style.display = "block";
+    document.getElementById("statusOptions").style.display="block";
 
-  } catch(e) {
+  }catch(e){
     showLoading(false);
-    document.getElementById("startSpinner").style.display = "none";
-    document.getElementById("startTaskBtn").style.display = "inline-block";
-    if (e instanceof TypeError) {
-      setNotification("Network error loading tasks.", true);
-    } else {
-      setNotification("Error loading tasks: " + e.message, true);
-    }
+    document.getElementById("startSpinner").style.display="none";
+    document.getElementById("startTaskBtn").style.display="inline-block";
+    setNotification("Error loading tasks => "+e.message,true);
   }
 }
 
-async function markTaskAsStarted(task) {
-  startTime = new Date();
-  const startStr = formatDateTime(startTime);
-  showLoading(true);
-  try {
-    // patch the row in the new "Backend" with search?search_by=Job%20Code:&update_only=true
-    await patchBackend(task["Job Code:"], "Started", `Start: ${startStr}`);
-
-    // patch Task Data + Task History
-    const fields = buildFields(task, startStr, "", "", "Started", "");
-    await patchTaskData(userFullName, task["Job Code:"], fields);
-    await patchTaskHistory(userFullName, task["Job Code:"], fields);
-
-  } catch(e) {
-    setNotification(`Error marking task as started: ${e.message}`, true);
-  } finally {
-    showLoading(false);
-  }
-}
-
-
-/* ============================
-   TASK DISPLAY & STOP
-   ============================ */
-async function displayTaskDetails(task) {
-  if (!task) {
-    document.getElementById("taskDetail").innerHTML = "<p>No tasks to display.</p>";
+/** 
+ * Display the details (client, param1, param2, etc.) in a 2-col grid.
+ */
+async function displayTaskDetails(task){
+  if(!task){
+    document.getElementById("taskDetail").innerHTML="<p>No tasks to display.</p>";
     return;
   }
-  const qAssoc = await findDirectQuestion((task["Client:"]||"").trim());
-  document.getElementById("taskDetail").innerHTML = `
+  const qAssoc=await findDirectQuestion((task["Client:"]||"").trim());
+  document.getElementById("taskDetail").innerHTML=`
     <div class="details-grid">
-      <div><b>Client:</b> ${task["Client:"] || ""}</div>
-      <div><b>Parameter 1:</b> ${task["Parameter 1:"] || ""}</div>
-      <div><b>Task:</b> ${task["Task:"] || ""}</div>
-      <div><b>Parameter 2:</b> ${task["Parameter 2:"] || ""}</div>
-      <div><b>Deliverable Name:</b> ${task["Deliverable Name:"] || ""}</div>
-      <div><b>Production Notes:</b> ${task["Production Notes:"] || ""}</div>
-      <div><b>Direct Questions To:</b> ${qAssoc || ""}</div>
-      <div><b>Due Time:</b> ${task["Due Time:"] || ""}</div>
+      <div><b>Client:</b> ${(task["Client:"]||"")}</div>
+      <div><b>Parameter 1:</b> ${(task["Parameter 1:"]||"")}</div>
+      <div><b>Task:</b> ${(task["Task:"]||"")}</div>
+      <div><b>Parameter 2:</b> ${(task["Parameter 2:"]||"")}</div>
+      <div><b>Deliverable Name:</b> ${(task["Deliverable Name:"]||"")}</div>
+      <div><b>Production Notes:</b> ${(task["Production Notes:"]||"")}</div>
+      <div><b>Direct Questions To:</b> ${qAssoc||""}</div>
+      <div><b>Due Time:</b> ${(task["Due Time:"]||"")}</div>
     </div>
   `;
 }
 
-async function stopTask() {
-  setNotification("");
 
-  document.getElementById("stopSpinner").style.display  = "block";
-  document.querySelector(".stop-btn").style.display     = "none";
+/* ============================
+   STOP TASK
+   ============================ */
+
+/** 
+ * Called when user clicks "Stop Task" => 
+ * insert new row in BACKEND (status=Issue/InProgress/Completed),
+ * also in Task Data + Task History with "Stop Time," notes, etc.
+ */
+async function stopTask(){
+  setNotification("");
+  document.getElementById("stopSpinner").style.display="block";
+  document.querySelector(".stop-btn").style.display="none";
   showLoading(true);
 
-  if (!currentTask) {
-    setNotification("No current task to stop.", true);
+  if(!currentTask){
+    setNotification("No current task to stop.",true);
     endStopSpinner();
     return;
   }
 
-  // which radio is chosen
-  let chosen = "";
-  const radios = document.getElementsByName("stopStatus");
-  for (let i=0; i<radios.length; i++) {
-    if (radios[i].checked) {
-      chosen = radios[i].value;
+  // Which status radio?
+  let chosen="";
+  const rads=document.getElementsByName("stopStatus");
+  for(let i=0;i<rads.length;i++){
+    if(rads[i].checked){
+      chosen=rads[i].value;
       break;
     }
   }
-  if (!chosen) {
-    setNotification("Please select a status first.", true);
+  if(!chosen){
+    setNotification("Please select a status first.",true);
+    endStopSpinner();
+    return;
+  }
+  // If "In Progress" or "Issue", notes are required
+  const noteEl=document.getElementById("notes");
+  const noteVal=noteEl.value.trim();
+  const requiresNote=(chosen==="In Progress"||chosen==="Issue");
+  highlightInput("notes",requiresNote&&!noteVal);
+  if(requiresNote&&!noteVal){
+    setNotification(`Notes are required for status: ${chosen}`,true);
     endStopSpinner();
     return;
   }
 
-  // if "In Progress" or "Issue" => notes required
-  const notesEl = document.getElementById("notes");
-  const notes   = notesEl.value.trim();
-  const reqNote = (chosen === "In Progress" || chosen === "Issue");
-  highlightInput("notes", reqNote && !notes);
-  if (reqNote && !notes) {
-    setNotification(`Notes are required for status: ${chosen}.`, true);
-    endStopSpinner();
-    return;
-  }
+  try{
+    // Insert brand new row in BACKEND
+    const stopNow=new Date();
+    const combined=`Start: ${formatDateTime(startTime)||"?"} | Stop: ${formatDateTime(stopNow)}`;
+    await insertRow(BACKEND_URL,{
+      ...currentTask,
+      "Status:": chosen,
+      "Time:": combined
+    });
 
-  const stopMoment   = new Date();
-  const stopTimeStr  = formatDateTime(stopMoment);
-  const startTimeStr = startTime ? formatDateTime(startTime) : "";
-  const combinedTime = startTimeStr
-    ? `Start: ${startTimeStr} | Stop: ${stopTimeStr}`
-    : `Stop: ${stopTimeStr}`;
+    // Insert row in Task Data + Task History
+    const rowObj={
+      ...currentTask,
+      "Status:": chosen,
+      "Start Time:": formatDateTime(startTime)||"",
+      "Stop Time:": formatDateTime(stopNow)
+    };
+    const cTime=(startTime&&stopNow)?computeCumulativeTime(startTime,stopNow):"";
+    rowObj["Cumulative Time:"]=cTime;
+    rowObj["Associate Notes:"]=noteVal;
+    rowObj["Update:"]="FALSE";
 
-  const cTime = (startTime && stopMoment)
-    ? computeCumulativeTime(startTime, stopMoment)
-    : "";
+    await insertRow(TASK_DATA_URL, rowObj);
+    await insertRow(TASK_HISTORY_URL, rowObj);
 
-  try {
-    // patch the row in the new "Backend" link
-    await patchBackend(currentTask["Job Code:"], chosen, combinedTime);
-
-    // patch Task Data + Task History
-    const fields = buildFields(currentTask, startTimeStr, stopTimeStr, cTime, chosen, notes);
-    await patchTaskData(userFullName, currentTask["Job Code:"], fields);
-    await patchTaskHistory(userFullName, currentTask["Job Code:"], fields);
-
-  } catch(e) {
-    setNotification(`Error stopping task: ${e.message}`, true);
-  } finally {
+  }catch(e){
+    setNotification("Error stopping task => "+e.message,true);
+  }finally{
     resetScreen();
     endStopSpinner();
 
-    // Return user to Start Task
-    const startBtn = document.getElementById("startTaskBtn");
-    startBtn.style.display = "inline-block";
-    startBtn.innerText     = "Start Task";
+    document.getElementById("startTaskBtn").style.display="inline-block";
+    document.getElementById("startTaskBtn").innerText="Start Task";
   }
 }
 
-function endStopSpinner() {
-  document.getElementById("stopSpinner").style.display = "none";
-  document.querySelector(".stop-btn").style.display    = "inline-block";
+/** 
+ * Show stop button again, hide spinner, hide loading overlay
+ */
+function endStopSpinner(){
+  document.getElementById("stopSpinner").style.display="none";
+  document.querySelector(".stop-btn").style.display="inline-block";
   showLoading(false);
 }
 
@@ -846,18 +846,27 @@ function endStopSpinner() {
 /* ============================
    ON CALL / LOGOUT
    ============================ */
-function closeOnCall() {
-  document.getElementById("onCallModal").style.display = "none";
+
+/** Called if user closes the On Call modal */
+function closeOnCall(){
+  document.getElementById("onCallModal").style.display="none";
 }
 
-function logout() {
+/** 
+ * Log out => 
+ * 1) clear screen
+ * 2) hide #taskScreen
+ * 3) show #loginOverlay
+ * 4) clear username/password
+ */
+function logout(){
   setNotification("");
   resetScreen();
-  userFullName = "";
-  document.getElementById("taskScreen").style.display   = "none";
-  document.getElementById("loginOverlay").style.display = "flex";
-  document.getElementById("username").value = "";
-  document.getElementById("password").value = "";
+  userFullName="";
+  document.getElementById("taskScreen").style.display="none";
+  document.getElementById("loginOverlay").style.display="flex";
+  document.getElementById("username").value="";
+  document.getElementById("password").value="";
 }
 </script>
 </body>
