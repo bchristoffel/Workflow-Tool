@@ -385,6 +385,7 @@
     On Call: Please refresh every five minutes. 
     If you are still On Call after 15 minutes, please reach out to your Lead.
   </h3>
+  <!-- Note: This site triggers CSP errors, but it’s only "report only" -->
   <iframe src="https://chromedino.com/" allowfullscreen></iframe>
   <p style="line-height:1.4;">
     You can close this game or hit “Refresh” to check for tasks again.
@@ -394,24 +395,22 @@
 
 <script>
 /* 
-   ===========================
+   ============================
    CONFIG / GLOBALS
-   ===========================
-   Single Google Sheet named "Workflow Assignments" with these tabs:
-     1) Backend (for "Current Status:" and "Time:")
-     2) Task Data (Associate overwrites their row each time)
-     3) Task History (Associate overwrites their row each time)
+   ============================
+   - We use a special link for the "Backend" tab => https://sheetdb.io/api/v1/y49ke3tx521c6?sheet=Backend
+   - We keep the original link for "Task Data" => dmn6n7fcwh80m?sheet=Task%20Data
+   - We keep the original link for "Task History" => dmn6n7fcwh80m?sheet=Task%20History
 */
-const SHEETDB_ID         = "dmn6n7fcwh80m"; /* Use your actual ID */
-const SHEETDB_BASE       = `https://sheetdb.io/api/v1/${SHEETDB_ID}`;
-const BACKEND_URL        = SHEETDB_BASE + "?sheet=Backend";
-const TASK_DATA_URL      = SHEETDB_BASE + "?sheet=Task%20Data";
-const TASK_HISTORY_URL   = SHEETDB_BASE + "?sheet=Task%20History";
 
-const LASALLE_POD_URL    = SHEETDB_BASE + "?sheet=LaSalle%20Pod";
-const QUESTION_ASSOC_URL = SHEETDB_BASE + "?sheet=Question%20Associates";
+const BACKEND_BASE    = "https://sheetdb.io/api/v1/y49ke3tx521c6"; // We'll append ?sheet=Backend when searching
+const TASK_DATA_URL   = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20Data";
+const TASK_HISTORY_URL= "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20History";
 
-const HARDCODED_PASS     = "abc123";
+const LASALLE_POD_URL    = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=LaSalle%20Pod";
+const QUESTION_ASSOC_URL = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Question%20Associates";
+
+const HARDCODED_PASS     = "abc123"; // for demo only
 
 let userFullName = "";
 let tasks        = [];
@@ -419,9 +418,9 @@ let currentTask  = null;
 let startTime    = null;
 
 
-/* ===========================
+/* ============================
    HELPER / UTILITY
-   =========================== */
+   ============================ */
 function setNotification(msg, isError=false) {
   const bar = document.getElementById("notificationBar");
   if (!msg) {
@@ -434,6 +433,7 @@ function setNotification(msg, isError=false) {
   bar.innerText     = msg;
 }
 
+/** highlight/unhighlight an input field for errors */
 function highlightInput(inputId, shouldHighlight) {
   const el = document.getElementById(inputId);
   if (!el) return;
@@ -472,11 +472,11 @@ function computeCumulativeTime(start, stop) {
 }
 
 /* 
-  Patch the existing row in the "Backend" tab for this Job Code,
-  updating "Current Status:" and "Time:" 
+  Overwrite the row in the Backend tab by searching "Job Code:".
+  We must do: /search?sheet=Backend&search_by=Job%20Code:&update_only=true
 */
 async function patchBackend(jobCode, newStatus, timeValue) {
-  const searchUrl = BACKEND_URL + "/search?search_by=Job%20Code:&update_only=true";
+  const searchUrl = BACKEND_BASE + "/search?sheet=Backend&search_by=Job%20Code:&update_only=true";
   const bodyData  = {
     data: [{
       "Job Code:":       jobCode,
@@ -490,58 +490,60 @@ async function patchBackend(jobCode, newStatus, timeValue) {
     body: JSON.stringify(bodyData)
   });
   if (!resp.ok) {
-    throw new Error(`[patchBackend] ${resp.status} ${resp.statusText}`);
+    throw new Error(`[patchBackend] => ${resp.status} ${resp.statusText}`);
   }
 }
 
 /*
-  Overwrite a row in Task Data or Task History for (Associate, Job Code).
-  If your plan can't multi-column search, consider searching only by "Job Code:" or "Associate:".
+  Overwrite a row in the "Task Data" or "Task History" tabs 
+  searching by (Associate, Job Code) 
+  for the dmn6n7fcwh80m?sheet=Task%20Data / Task%20History
 */
 async function patchTaskData(assocName, jobCode, fieldsObj) {
-  // Attempt multi-column approach:
+  // Example: ...sheet=Task%20Data/search?Associate=John%20Doe&Job%20Code=123&update_only=true
+  // Then the body includes "Associate:", "Job Code:", plus fieldsObj
   const searchUrl = TASK_DATA_URL
     + `/search?Associate=${encodeURIComponent(assocName)}&Job%20Code=${encodeURIComponent(jobCode)}&update_only=true`;
-  const body = { data: [{
-    "Associate:": assocName,
-    "Job Code:":  jobCode,
-    ...fieldsObj
-  }]};
+  const body = {
+    data: [{
+      "Associate:": assocName,
+      "Job Code:":  jobCode,
+      ...fieldsObj
+    }]
+  };
   const resp = await fetch(searchUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
   if (!resp.ok) {
-    throw new Error(`[patchTaskData] ${resp.status} ${resp.statusText}`);
+    throw new Error(`[patchTaskData] => ${resp.status} ${resp.statusText}`);
   }
 }
 
 async function patchTaskHistory(assocName, jobCode, fieldsObj) {
   const searchUrl = TASK_HISTORY_URL
     + `/search?Associate=${encodeURIComponent(assocName)}&Job%20Code=${encodeURIComponent(jobCode)}&update_only=true`;
-  const body = { data: [{
-    "Associate:": assocName,
-    "Job Code:":  jobCode,
-    ...fieldsObj
-  }]};
+  const body = {
+    data: [{
+      "Associate:": assocName,
+      "Job Code:":  jobCode,
+      ...fieldsObj
+    }]
+  };
   const resp = await fetch(searchUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
   if (!resp.ok) {
-    throw new Error(`[patchTaskHistory] ${resp.status} ${resp.statusText}`);
+    throw new Error(`[patchTaskHistory] => ${resp.status} ${resp.statusText}`);
   }
 }
 
 /*
-  Build a set of fields for updating "Task Data" or "Task History" columns:
-    - "Start Time:", "Stop Time:", "Priority:", "Associate:", "Status:", 
-      "Client:", "Task:", "Deliverable Name:", "Deliverable ID:", "Parameter 1:", 
-      "Parameter 2:", "Production Notes:", "Due Time:", "Due Date:", 
-      "Associate Notes:", "Cumulative Time:"
-  The rest are optional or come from the original task object.
+  Build a set of fields for updating "Task Data"/"Task History" columns:
+    "Start Time:", "Stop Time:", "Associate Notes:", "Cumulative Time:", etc.
 */
 function buildFields(taskObj, startStr, stopStr, cTimeStr, status, notes) {
   return {
@@ -564,7 +566,10 @@ function buildFields(taskObj, startStr, stopStr, cTimeStr, status, notes) {
   };
 }
 
-/* Simple direct question lookup. */
+/** 
+ * "Direct Questions To:" => find the row in "Question Associates" 
+ * Return primary/secondary/backup contact if found. 
+*/
 async function findDirectQuestion(clientName) {
   if (!clientName) return "";
   try {
@@ -580,7 +585,10 @@ async function findDirectQuestion(clientName) {
   }
 }
 
-/** Reset the screen after a stop, or on logout. */
+/** 
+ * Reset the screen after a stop or logout 
+ * (clears currentTask, hides radio statuses, notes, etc.)
+*/
 function resetScreen() {
   document.getElementById("statusOptions").style.display = "none";
   const notesEl = document.getElementById("notes");
@@ -591,13 +599,15 @@ function resetScreen() {
   document.getElementById("taskDetail").innerHTML = "";
 }
 
-/** Show the #notes field once a status is selected. */
+/** Show #notes after selecting a stop status. */
 function statusChosen() {
   document.getElementById("notes").style.display = "block";
 }
 
 
-/* ========== AUTH / LOGIN ========== */
+/* ============================
+   AUTH / LOGIN
+   ============================ */
 function checkEnter(e) {
   if (e.key === "Enter") {
     login();
@@ -606,8 +616,8 @@ function checkEnter(e) {
 
 async function login() {
   setNotification("");
-  const user = document.getElementById("username").value.trim().toLowerCase();
-  const pass = document.getElementById("password").value.trim();
+  const user    = document.getElementById("username").value.trim().toLowerCase();
+  const pass    = document.getElementById("password").value.trim();
   const spinner = document.getElementById("loginSpinner");
 
   highlightInput("username", !user);
@@ -653,20 +663,25 @@ async function login() {
 }
 
 
-/* ========== TASK START / REFRESH ========== */
+/* ============================
+   TASK START / REFRESH
+   ============================ */
 function startTaskClicked() {
   setNotification("");
   document.getElementById("startTaskBtn").style.display = "none";
-  document.getElementById("startSpinner").style.display  = "block";
+  document.getElementById("startSpinner").style.display = "block";
   showLoading(true);
   loadReadyTasks();
 }
 
 async function loadReadyTasks() {
   try {
-    const res  = await fetch(BACKEND_URL);
+    // We'll fetch the "Backend" data with ?sheet=Backend in the URL
+    const backendUrl = BACKEND_BASE + "?sheet=Backend";
+    const res  = await fetch(backendUrl);
     const data = await res.json();
 
+    // Filter tasks for the current user with status=Ready
     tasks = data.filter(r => {
       const assoc  = (r["Associate:"] || "").trim().toLowerCase();
       const status = (r["Status:"]    || "").trim().toLowerCase();
@@ -713,10 +728,11 @@ async function markTaskAsStarted(task) {
   const startStr = formatDateTime(startTime);
   showLoading(true);
   try {
-    // 1) Overwrite the row in Backend
+    // 1) Overwrite in the new separate "Backend" link 
+    //    searching by "Job Code:"
     await patchBackend(task["Job Code:"], "Started", `Start: ${startStr}`);
 
-    // 2) Overwrite Task Data & Task History
+    // 2) Overwrite Task Data + Task History
     const fields = buildFields(task, startStr, "", "", "Started", "");
     await patchTaskData(userFullName, task["Job Code:"], fields);
     await patchTaskHistory(userFullName, task["Job Code:"], fields);
@@ -729,7 +745,9 @@ async function markTaskAsStarted(task) {
 }
 
 
-/* ========== TASK DISPLAY & STOP ========== */
+/* ============================
+   TASK DISPLAY & STOP
+   ============================ */
 async function displayTaskDetails(task) {
   if (!task) {
     document.getElementById("taskDetail").innerHTML = "<p>No tasks to display.</p>";
@@ -753,8 +771,8 @@ async function displayTaskDetails(task) {
 async function stopTask() {
   setNotification("");
 
-  document.getElementById("stopSpinner").style.display = "block";
-  document.querySelector(".stop-btn").style.display    = "none";
+  document.getElementById("stopSpinner").style.display  = "block";
+  document.querySelector(".stop-btn").style.display     = "none";
   showLoading(true);
 
   if (!currentTask) {
@@ -763,7 +781,6 @@ async function stopTask() {
     return;
   }
 
-  // Which status radio is chosen?
   let chosen = "";
   const radios = document.getElementsByName("stopStatus");
   for (let i=0; i<radios.length; i++) {
@@ -778,7 +795,6 @@ async function stopTask() {
     return;
   }
 
-  // If In Progress or Issue => notes required
   const notesEl = document.getElementById("notes");
   const notes   = notesEl.value.trim();
   const reqNote = (chosen === "In Progress" || chosen === "Issue");
@@ -801,10 +817,10 @@ async function stopTask() {
     : "";
 
   try {
-    // 1) Overwrite the row in Backend
+    // 1) Overwrite in the new separate "Backend" link => patch row
     await patchBackend(currentTask["Job Code:"], chosen, combinedTime);
 
-    // 2) Overwrite the row in Task Data & History for this associate + job code
+    // 2) Overwrite row in Task Data + Task History
     const fields = buildFields(currentTask, startTimeStr, stopTimeStr, cTime, chosen, notes);
     await patchTaskData(userFullName, currentTask["Job Code:"], fields);
     await patchTaskHistory(userFullName, currentTask["Job Code:"], fields);
@@ -815,7 +831,7 @@ async function stopTask() {
     resetScreen();
     endStopSpinner();
 
-    // Show Start Task again
+    // Return user to Start Task
     const startBtn = document.getElementById("startTaskBtn");
     startBtn.style.display = "inline-block";
     startBtn.innerText     = "Start Task";
@@ -829,7 +845,9 @@ function endStopSpinner() {
 }
 
 
-/* ========== ON CALL / LOGOUT ========== */
+/* ============================
+   ON CALL / LOGOUT
+   ============================ */
 function closeOnCall() {
   document.getElementById("onCallModal").style.display = "none";
 }
