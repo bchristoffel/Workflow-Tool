@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>AutonomyWorks Workflow (With POST Logging)</title>
+  <title>AutonomyWorks Workflow (No POST to /backend)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* 
@@ -402,25 +402,23 @@
   ============================
   CONFIG / GLOBALS
   ============================
+  Replacing old references with Worker endpoints:
+  1) GET /backend        => read tasks
+  2) GET or POST /taskData => log start/stop
+  3) GET or POST /taskHistory => log start/stop
+  4) GET /lasallePod     => login
+  5) GET /questionAssociates => direct questions
 
-  Replacing old references with 5 Worker endpoints:
-  1) /backend        (GET) to see tasks
-  2) /taskData       (GET, or POST to log start/stop rows)
-  3) /taskHistory    (GET, or POST to log start/stop rows)
-  4) /lasallePod     (GET, used for verifying user in login)
-  5) /questionAssociates (GET, used for direct questions)
+  We do NOT post to /backend anymore. Just GET from it to find tasks.
 */
-const BACKEND_URL        = "https://my-api.bchristoffel02.workers.dev/backend";
-const TASK_DATA_URL      = "https://my-api.bchristoffel02.workers.dev/taskData";
-const TASK_HISTORY_URL   = "https://my-api.bchristoffel02.workers.dev/taskHistory";
-const LASALLE_POD_URL    = "https://my-api.bchristoffel02.workers.dev/lasallePod";
+const BACKEND_URL        = "https://my-api.bchristoffel02.workers.dev/backend";      // GET only
+const TASK_DATA_URL      = "https://my-api.bchristoffel02.workers.dev/taskData";    // GET or POST
+const TASK_HISTORY_URL   = "https://my-api.bchristoffel02.workers.dev/taskHistory"; // GET or POST
+const LASALLE_POD_URL    = "https://my-api.bchristoffel02.workers.dev/lasallePod";  
 const QUESTION_ASSOC_URL = "https://my-api.bchristoffel02.workers.dev/questionAssociates";
 
-/*
-  Hardcoded password for demonstration.
-  If you need real auth, you'd implement a secure backend check.
-*/
-const HARDCODED_PASS = "abc123";
+// Hardcoded password for demo
+const HARDCODED_PASS     = "abc123";
 
 let userFullName = "";
 let tasks        = [];
@@ -432,9 +430,7 @@ let startTime    = null;
    HELPER / UTILITY
    ============================ */
 
-/** 
- * Show/hide #notificationBar
- */
+/** Show/hide a notification bar */
 function setNotification(msg, isError=false) {
   const bar = document.getElementById("notificationBar");
   if(!msg) {
@@ -443,72 +439,60 @@ function setNotification(msg, isError=false) {
     return;
   }
   bar.style.display="block";
-  bar.style.color=isError ? "red" : "#0f5132";
-  bar.innerText = msg;
+  bar.style.color = isError ? "red" : "#0f5132";
+  bar.innerText   = msg;
 }
 
-/** 
- * Mark an input with red border if needed 
- */
+/** Mark an input with red if needed */
 function highlightInput(id, shouldHighlight){
-  const el=document.getElementById(id);
+  const el = document.getElementById(id);
   if(!el)return;
   if(shouldHighlight) el.classList.add("input-error");
   else el.classList.remove("input-error");
 }
 
-/** 
- * Show or hide the big #loadingOverlay 
- */
+/** Show or hide the big #loadingOverlay */
 function showLoading(show) {
   document.getElementById("loadingOverlay").style.display = show ? "flex" : "none";
 }
 
-/** 
- * Format a Date => "MM/DD/YYYY HH:MM:SS" 
- */
+/** Format a Date => "MM/DD/YYYY HH:MM:SS" */
 function formatDateTime(d) {
   if(!(d instanceof Date))return "";
-  const pad=n=>(n<10 ? "0"+n : ""+n);
+  const pad=n=>(n<10?"0"+n:""+n);
   const mm=pad(d.getMonth()+1), dd=pad(d.getDate()), yy=d.getFullYear();
   const hh=pad(d.getHours()), mn=pad(d.getMinutes()), sc=pad(d.getSeconds());
   return `${mm}/${dd}/${yy} ${hh}:${mn}:${sc}`;
 }
 
-/** 
- * Return "H:MM:SS" difference between two Date objects 
- */
+/** Return "H:MM:SS" between two Date objects */
 function computeCumulativeTime(st,sp){
   if(!st||!sp)return "";
   const diff=sp-st, sec=Math.floor(diff/1000);
   const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
-  const pad=n=>(n<10 ? "0"+n : ""+n);
+  const pad=n=>(n<10?"0"+n:""+n);
   return `${h}:${pad(m)}:${pad(s)}`;
 }
 
-/** 
- * Insert row(s) by POSTing to a Worker endpoint that does :append
- * body.data -> must be { "values": [ [ ... ] ] }
- */
-async function insertRow(url, rowObjArray) {
-  // rowObjArray => array of arrays, e.g. [ ["username","Started",...], ["..."] ]
-  const resp = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ values: rowObjArray })
+/** Insert row(s) by POST to /taskData or /taskHistory */
+async function insertRow(url, rowArr) {
+  // rowArr is an array of arrays for "values"
+  // e.g. [ ["bchristoffel","Started","09/01/2025 08:00:00","",...] ]
+  const resp=await fetch(url, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ values: rowArr })
   });
   if(!resp.ok){
     const txt=await resp.text();
     throw new Error(`${resp.status} ${resp.statusText}\n${txt}`);
   }
-  // Possibly returns JSON with "updates"
-  const j=await resp.json();
-  return j;
+  return await resp.json();
 }
 
 /** 
- * After user picks "startTask", we display details about the selected row
- * and also find who "Direct Questions To" by fetching questionAssociates
+ * For direct questions (Client => Primary Contact):
+ * We fetch questionAssociates => j.values => parse 
  */
 async function findDirectQuestion(clientName){
   if(!clientName)return"";
@@ -516,26 +500,24 @@ async function findDirectQuestion(clientName){
     const r=await fetch(QUESTION_ASSOC_URL);
     const j=await r.json();
     if(!j.values || !Array.isArray(j.values)) return "";
-    const headers = j.values[0] || [];
-    const dataRows = j.values.slice(1);
-    const cIdx = headers.indexOf("Client");
-    const pIdx = headers.indexOf("Primary Contact");
-    const sIdx = headers.indexOf("Secondary Contact");
-    const bIdx = headers.indexOf("Backup Contact");
+    const headers=j.values[0]||[];
+    const dataRows=j.values.slice(1);
+    const cIdx=headers.indexOf("Client");
+    const pIdx=headers.indexOf("Primary Contact");
+    const sIdx=headers.indexOf("Secondary Contact");
+    const bIdx=headers.indexOf("Backup Contact");
     if(cIdx<0) return "";
 
-    const row = dataRows.find(rr => (rr[cIdx]||"").trim().toLowerCase() === clientName.toLowerCase());
+    const row=dataRows.find(rr=>(rr[cIdx]||"").trim().toLowerCase()===clientName.toLowerCase());
     if(!row)return"";
-    return row[pIdx] || row[sIdx] || row[bIdx] || "";
-  } catch(e){
-    console.error("Error in findDirectQuestion =>",e);
+    return row[pIdx]||row[sIdx]||row[bIdx]||"";
+  }catch(e){
+    console.error("Error findDirectQuestion =>", e);
     return "";
   }
 }
 
-/** 
- * Reset the screen after stopping or logging out
- */
+/** Reset screen after stop or logout */
 function resetScreen(){
   document.getElementById("statusOptions").style.display="none";
   const noteEl=document.getElementById("notes");
@@ -546,16 +528,12 @@ function resetScreen(){
   document.getElementById("taskDetail").innerHTML="";
 }
 
-/** 
- * Show #notes area once a radio is chosen
- */
+/** Show #notes when user picks a radio */
 function statusChosen(){
   document.getElementById("notes").style.display="block";
 }
 
-/** 
- * If user hits Enter in login field => login()
- */
+/** If user hits Enter => login() */
 function checkEnter(e){
   if(e.key==="Enter") login();
 }
@@ -563,18 +541,14 @@ function checkEnter(e){
 /* ============================
    AUTH / LOGIN 
    ============================ */
-
-/** 
- * Validate user, fetch laSallePod
- */
 async function login(){
   setNotification("");
-  const user = document.getElementById("username").value.trim().toLowerCase();
-  const pass = document.getElementById("password").value.trim();
+  const user=document.getElementById("username").value.trim().toLowerCase();
+  const pass=document.getElementById("password").value.trim();
   highlightInput("username", !user);
   highlightInput("password", !pass);
 
-  if(!user || !pass){
+  if(!user||!pass){
     setNotification("Username and Password are required.",true);
     return;
   }
@@ -593,26 +567,25 @@ async function login(){
       setNotification("LaSalle Pod data not found or invalid structure.",true);
       return;
     }
-    const headers = j.values[0] || [];
-    const dataRows = j.values.slice(1);
-    const uIdx = headers.indexOf("Username");
-    const fnIdx= headers.indexOf("First Name");
-    const lnIdx= headers.indexOf("Last Name");
-    if(uIdx<0 || fnIdx<0 || lnIdx<0){
+    const headers=j.values[0]||[];
+    const dataRows=j.values.slice(1);
+    const uIdx=headers.indexOf("Username");
+    const fnIdx=headers.indexOf("First Name");
+    const lnIdx=headers.indexOf("Last Name");
+    if(uIdx<0||fnIdx<0||lnIdx<0){
       setNotification("Missing columns in 'LaSalle Pod' tab.",true);
       return;
     }
-    // find row with matching user
-    const row = dataRows.find(row => (row[uIdx]||"").trim().toLowerCase()===user);
+    const row=dataRows.find(rr=>(rr[uIdx]||"").trim().toLowerCase()===user);
     if(!row){
       setNotification("User not found in LaSalle Pod data.",true);
       return;
     }
     const fn=(row[fnIdx]||"").trim();
     const ln=(row[lnIdx]||"").trim();
-    userFullName = fn+" "+ln;
+    userFullName=fn+" "+ln;
 
-    document.getElementById("greeting").textContent = "Hello, "+userFullName+"!";
+    document.getElementById("greeting").textContent="Hello, "+userFullName+"!";
     document.getElementById("loginOverlay").style.display="none";
     document.getElementById("taskScreen").style.display="block";
   }catch(e){
@@ -624,8 +597,6 @@ async function login(){
 /* ============================
    START TASK / REFRESH
    ============================ */
-
-/** Called when user clicks Start Task */
 function startTaskClicked(){
   setNotification("");
   document.getElementById("startTaskBtn").style.display="none";
@@ -634,11 +605,6 @@ function startTaskClicked(){
   loadReadyTasks();
 }
 
-/** 
- * Load tasks from /backend, filter Associate===userFullName, Status===Ready
- * If none => On Call 
- * If found => we do "Started" row inserts
- */
 async function loadReadyTasks(){
   try{
     const r=await fetch(BACKEND_URL);
@@ -660,7 +626,6 @@ async function loadReadyTasks(){
       resetScreen();
       return;
     }
-
     tasks=dataRows.filter(row=>{
       const assoc=(row[assocIdx]||"").trim().toLowerCase();
       const stat =(row[statusIdx]||"").trim().toLowerCase();
@@ -679,34 +644,27 @@ async function loadReadyTasks(){
     }
 
     // We have at least 1 "Ready" task
-    // We'll take the first one
+    // We'll just take the first
     const rowArr=tasks[0];
-    // Convert that row array => object if you want
     const taskObj=convertRowToObj(rowArr, headers);
     currentTask=taskObj;
     document.getElementById("onCallModal").style.display="none";
     document.getElementById("startTaskBtn").style.display="none";
 
-    // Insert a row => "Started" in Task Data + Task History
+    // Insert row => "Started" only in Task Data + Task History
     const startNow=new Date();
     startTime=startNow;
     const startStr=formatDateTime(startNow);
 
-    // We'll create a row array with the columns we want:
-    // Example columns: [ "Associate:", "Status:", "Start Time:", "Stop Time:", "Cumulative Time:", "Associate Notes:" ]
-    // Adjust as needed
-    const rowForBackend=[
-      [ userFullName, "Started", "Start: "+startStr ]
-    ];
-    await insertRow(BACKEND_URL, rowForBackend);
-
+    // Example row arrays for your columns
+    // e.g. [ "Associate:", "Status", "Start Time:", "Stop Time:", "Cumulative Time:", "Notes" ]
     const rowForTaskDataHistory=[
       [ userFullName, "Started", startStr, "", "", "" ]
     ];
-    await insertRow(TASK_DATA_URL,    rowForTaskDataHistory);
+    await insertRow(TASK_DATA_URL, rowForTaskDataHistory);
     await insertRow(TASK_HISTORY_URL, rowForTaskDataHistory);
 
-    // Now show the details
+    // Now show details
     await displayTaskDetails(currentTask);
     document.getElementById("statusOptions").style.display="block";
   }catch(e){
@@ -717,10 +675,6 @@ async function loadReadyTasks(){
   }
 }
 
-/** 
- * Convert a row array -> object (header->value),
- * if you want to show them more easily
- */
 function convertRowToObj(rowArr, headers){
   const obj={};
   headers.forEach((hdr,i)=>{
@@ -729,26 +683,25 @@ function convertRowToObj(rowArr, headers){
   return obj;
 }
 
-/** 
- * Show the details (like parameter1, param2, etc.) in a grid
- */
 async function displayTaskDetails(task){
   if(!task){
     document.getElementById("taskDetail").innerHTML="<p>No tasks to display.</p>";
     return;
   }
-  const qAssoc=await findDirectQuestion(task["Client:"]||"");
+  const clientName=(task["Client:"]||"").trim();
+  const qAssoc=await findDirectQuestion(clientName);
+
   const html=`
-  <div class="details-grid">
-    <div><b>Client:</b> ${(task["Client:"]||"")}</div>
-    <div><b>Parameter 1:</b> ${(task["Parameter 1:"]||"")}</div>
-    <div><b>Task:</b> ${(task["Task:"]||"")}</div>
-    <div><b>Parameter 2:</b> ${(task["Parameter 2:"]||"")}</div>
-    <div><b>Deliverable Name:</b> ${(task["Deliverable Name:"]||"")}</div>
-    <div><b>Production Notes:</b> ${(task["Production Notes:"]||"")}</div>
-    <div><b>Direct Questions To:</b> ${qAssoc||""}</div>
-    <div><b>Due Time:</b> ${(task["Due Time:"]||"")}</div>
-  </div>`;
+    <div class="details-grid">
+      <div><b>Client:</b> ${(task["Client:"]||"")}</div>
+      <div><b>Parameter 1:</b> ${(task["Parameter 1:"]||"")}</div>
+      <div><b>Task:</b> ${(task["Task:"]||"")}</div>
+      <div><b>Parameter 2:</b> ${(task["Parameter 2:"]||"")}</div>
+      <div><b>Deliverable Name:</b> ${(task["Deliverable Name:"]||"")}</div>
+      <div><b>Production Notes:</b> ${(task["Production Notes:"]||"")}</div>
+      <div><b>Direct Questions To:</b> ${qAssoc||""}</div>
+      <div><b>Due Time:</b> ${(task["Due Time:"]||"")}</div>
+    </div>`;
   document.getElementById("taskDetail").innerHTML=html;
 }
 
@@ -766,7 +719,6 @@ async function stopTask(){
     endStopSpinner();
     return;
   }
-  // Which status radio?
   let chosen="";
   const rads=document.getElementsByName("stopStatus");
   for(let i=0;i<rads.length;i++){
@@ -780,7 +732,6 @@ async function stopTask(){
     endStopSpinner();
     return;
   }
-  // If "In Progress" or "Issue", notes required
   const noteVal=document.getElementById("notes").value.trim();
   const requiresNote=(chosen==="In Progress"||chosen==="Issue");
   highlightInput("notes", requiresNote && !noteVal);
@@ -793,21 +744,13 @@ async function stopTask(){
   try{
     const stopNow=new Date();
     const stopStr=formatDateTime(stopNow);
-    const combined=`Start: ${formatDateTime(startTime)||"?"} | Stop: ${stopStr}`;
     const cTime=computeCumulativeTime(startTime, stopNow);
 
-    // Insert row => "Stopped" in each tab
-    // e.g. columns: [ user, status, "Start Time:", "Stop Time:", "Cumulative Time:", "Associate Notes" ]
-    // Adjust as needed
-    const rowForBackend=[
-      [ userFullName, chosen, combined ]
-    ];
-    await insertRow(BACKEND_URL, rowForBackend);
-
+    // Insert row => "Stopped" in Task Data + Task History
     const rowForTaskDataHistory=[
       [ userFullName, chosen, formatDateTime(startTime)||"", stopStr, cTime, noteVal ]
     ];
-    await insertRow(TASK_DATA_URL,    rowForTaskDataHistory);
+    await insertRow(TASK_DATA_URL, rowForTaskDataHistory);
     await insertRow(TASK_HISTORY_URL, rowForTaskDataHistory);
 
   }catch(e){
@@ -829,14 +772,10 @@ function endStopSpinner(){
 /* ============================
    ON CALL / LOGOUT
    ============================ */
-
-/** Called if user closes the On Call modal */
 function closeOnCall(){
   document.getElementById("onCallModal").style.display="none";
-  resetScreen();
 }
 
-/** Log out => reset screen, show login overlay */
 function logout(){
   setNotification("");
   resetScreen();
