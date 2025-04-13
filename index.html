@@ -28,8 +28,7 @@
 
     /* 
       ------------------------------------------------
-      LOADING OVERLAY for Start/Stop tasks 
-      (with spinner)
+      LOADING OVERLAY for Start/Stop tasks (with spinner)
       ------------------------------------------------
     */
     #loadingOverlay {
@@ -209,10 +208,6 @@
       border-top: 4px solid #333;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin {
-      0%   { transform:rotate(0deg); }
-      100% { transform:rotate(360deg); }
     }
 
     /* 
@@ -454,8 +449,8 @@ const BACKEND_URL      = "https://sheetdb.io/api/v1/y49ke3tx521c6?sheet=Backend"
 const TASK_DATA_URL    = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20Data";
 const TASK_HISTORY_URL = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20History";
 
-const LASALLE_POD_URL  = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=LaSalle%20Pod";
-const QUESTION_ASSOC_URL= "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Question%20Associates";
+const LASALLE_POD_URL   = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=LaSalle%20Pod";
+const QUESTION_ASSOC_URL = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Question%20Associates";
 
 const HARDCODED_PASS   = "abc123";
 
@@ -518,10 +513,10 @@ function formatDateTime(d) {
  */
 function computeCumulativeTime(st,sp){
   if(!st||!sp)return"";
-  const diff=sp-st,sec=Math.floor(diff/1000);
+  const diff=sp-st, sec=Math.floor(diff/1000);
   const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
   const pad=n=>(n<10?"0"+n:n);
-  return`${h}:${pad(m)}:${pad(s)}`;
+  return `${h}:${pad(m)}:${pad(s)}`;
 }
 
 /** 
@@ -715,6 +710,13 @@ async function loadReadyTasks(){
     await insertRow(TASK_DATA_URL, rowObj);
     await insertRow(TASK_HISTORY_URL, rowObj);
 
+    // CALL APPS SCRIPT CLEANUP HERE
+    // After adding the new row to Task Data, run the duplicate cleanup
+    google.script.run
+      .withSuccessHandler(() => console.log("Cleanup after startTask done."))
+      .withFailureHandler(err => console.error("Cleanup error =>", err))
+      .removeOlderDuplicatesByJobCode();
+
     // Now show the details of this task
     await displayTaskDetails(currentTask);
     document.getElementById("statusOptions").style.display="block";
@@ -821,6 +823,12 @@ async function stopTask(){
 
     await insertRow(TASK_DATA_URL, rowObj);
     await insertRow(TASK_HISTORY_URL, rowObj);
+
+    // CALL APPS SCRIPT CLEANUP HERE
+    google.script.run
+      .withSuccessHandler(() => console.log("Cleanup after stopTask done."))
+      .withFailureHandler(err => console.error("Cleanup error =>", err))
+      .removeOlderDuplicatesByJobCode();
 
   }catch(e){
     setNotification("Error stopping task => "+e.message,true);
