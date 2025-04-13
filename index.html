@@ -3,13 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>AutonomyWorks Workflow (All Changes Integrated)</title>
-
-  <!-- Example of including FontAwesome for icons -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-  >
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* 
       ------------------------------------------------
@@ -71,7 +65,6 @@
     /* 
       ------------------------------------------------
       LOGIN OVERLAY 
-      (username, password, login button)
       ------------------------------------------------
     */
     #loginOverlay {
@@ -161,7 +154,6 @@
     /* 
       ------------------------------------------------
       MAIN TASK SCREEN 
-      (after login)
       ------------------------------------------------
     */
     #taskScreen {
@@ -419,7 +411,6 @@
     On Call: Please refresh every five minutes. 
     If you are still On Call after 15 minutes, please reach out to your Lead.
   </h3>
-  <!-- This iframe can produce CSP warnings, but doesn't block your code -->
   <iframe src="https://chromedino.com/" allowfullscreen></iframe>
   <p style="line-height:1.4;">
     You can close this game or hit “Refresh” to check for tasks again.
@@ -432,26 +423,23 @@
   ============================
   CONFIG / GLOBALS
   ============================
-  We'll do simple row insertion for each start or stop event:
-   - Insert row into "Backend": https://sheetdb.io/api/v1/y49ke3tx521c6?sheet=Backend
-   - Insert row into "Task Data": https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20Data
-   - Insert row into "Task History": https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20History
-
-  No partial updates. No searching. No patching.
-  Each event creates new lines with the relevant columns (Job Code, Status, etc.).
-
-  If you want to override older rows, 
-  that must be done via Apps Script, 
-  which runs in your "Workflow Assignments" Google Sheet itself.
+  Replacing old SheetDB links with 5 Worker endpoints:
+  1) /backend
+  2) /taskData
+  3) /taskHistory
+  4) /lasallePod
+  5) /questionAssociates
 */
+const BACKEND_URL           = "https://my-api.bchristoffel02.workers.dev/backend";
+const TASK_DATA_URL         = "https://my-api.bchristoffel02.workers.dev/taskData";
+const TASK_HISTORY_URL      = "https://my-api.bchristoffel02.workers.dev/taskHistory";
+const LASALLE_POD_URL       = "https://my-api.bchristoffel02.workers.dev/lasallePod";
+const QUESTION_ASSOC_URL    = "https://my-api.bchristoffel02.workers.dev/questionAssociates";
 
-const BACKEND_URL      = "https://sheetdb.io/api/v1/y49ke3tx521c6?sheet=Backend";
-const TASK_DATA_URL    = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20Data";
-const TASK_HISTORY_URL = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Task%20History";
-
-const LASALLE_POD_URL   = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=LaSalle%20Pod";
-const QUESTION_ASSOC_URL = "https://sheetdb.io/api/v1/dmn6n7fcwh80m?sheet=Question%20Associates";
-
+/* 
+  Hardcoded password for demonstration.
+  If you need real auth, you'd implement a secure backend check.
+*/
 const HARDCODED_PASS   = "abc123";
 
 let userFullName = "";
@@ -523,30 +511,51 @@ function computeCumulativeTime(st,sp){
  * Insert a single new row to the given URL with the rowObj data.
  */
 async function insertRow(url, rowObj) {
-  const resp=await fetch(url, {
+  const resp = await fetch(url, {
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({ data:[ rowObj ] })
   });
-  if(!resp.ok)throw new Error(`${resp.status} ${resp.statusText}`);
+  if(!resp.ok) throw new Error(`${resp.status} ${resp.statusText}`);
 }
 
 /** 
- * Fetch the "Direct Questions To:" contact from QUESTION_ASSOC_URL,
- * using "Client:" name as a lookup key.
+ * Attempt to find the "Direct Questions To:" contact from the 
+ * "Question Associates" tab (QUESTION_ASSOC_URL),
+ * matching the "Client:" name as a lookup key.
  */
 async function findDirectQuestion(clientName){
   if(!clientName)return"";
   try {
     const r=await fetch(QUESTION_ASSOC_URL);
     const j=await r.json();
-    if(!Array.isArray(j))return"";
-    const row=j.find(rr=>(rr.Client||"").trim().toLowerCase()===clientName.toLowerCase());
+    // The Worker returns an object with .values or similar
+    // We'll assume j.values is a 2D array or something
+    // Or if your Worker code returns:
+    //  { range: "Question Associates...", values: [ [...], [...], ... ] }
+    // Then you parse it here:
+    if(!j.values || !Array.isArray(j.values)) return "";
+    // The first row might be headers => find the column indexes
+    // Or if you want to do a quick find, parse the array for the row 
+    // that matches the clientName. This depends on how your data is structured.
+    // For simplicity, let's assume "Client" is col0 and "Primary Contact" is col1, etc.
+    // Example:
+    const headers = j.values[0] || [];
+    const dataRows = j.values.slice(1); 
+    const cIdx = headers.indexOf("Client");
+    const pIdx = headers.indexOf("Primary Contact");
+    const sIdx = headers.indexOf("Secondary Contact");
+    const bIdx = headers.indexOf("Backup Contact");
+    if(cIdx<0) return "";
+
+    // find the row
+    const row = dataRows.find(r => (r[cIdx]||"").trim().toLowerCase() === clientName.toLowerCase());
     if(!row)return"";
-    return row["Primary Contact"]||row["Secondary Contact"]||row["Backup Contact"]||"";
-  }catch(e){
-    console.error("Error QAssoc =>", e);
-    return"";
+    // if we found it, pick whichever contact is not empty
+    return row[pIdx] || row[sIdx] || row[bIdx] || "";
+  } catch(e){
+    console.error("Error findDirectQuestion =>", e);
+    return "";
   }
 }
 
@@ -583,7 +592,7 @@ function statusChosen(){
  * If user hits Enter in the username/password field, call login()
  */
 function checkEnter(e){
-  if(e.key==="Enter")login();
+  if(e.key==="Enter") login();
 }
 
 /** 
@@ -592,40 +601,58 @@ function checkEnter(e){
  */
 async function login(){
   setNotification("");
-  const user=document.getElementById("username").value.trim().toLowerCase();
-  const pass=document.getElementById("password").value.trim();
+  const user = document.getElementById("username").value.trim().toLowerCase();
+  const pass = document.getElementById("password").value.trim();
   highlightInput("username", !user);
   highlightInput("password", !pass);
 
-  if(!user||!pass){
+  if(!user || !pass){
     setNotification("Username and Password are required.",true);
     return;
   }
-  if(pass!==HARDCODED_PASS){
+  if(pass !== HARDCODED_PASS){
     setNotification("Invalid login credentials.",true);
     return;
   }
 
   const spin=document.getElementById("loginSpinner");
   spin.style.display="block";
-  try{
+  try {
+    // We'll do a GET on the /lasallePod Worker endpoint
     const r=await fetch(LASALLE_POD_URL);
     const j=await r.json();
     spin.style.display="none";
 
-    const found=j.find(row=>(row["Username"]||"").trim().toLowerCase()===user);
-    if(!found){
-      setNotification("User not found in LaSalle Pod.",true);
+    // If your Worker code returns something like { values: [ [...], [...], ... ] }
+    // you'll need to parse that. This example is the same approach as in findDirectQuestion.
+    if(!j.values || !Array.isArray(j.values)){
+      setNotification("LaSalle Pod data not found or invalid structure.",true);
       return;
     }
-    const fn=(found["First Name"]||"").trim();
-    const ln=(found["Last Name"]||"").trim();
-    userFullName=fn+" "+ln;
+    const headers = j.values[0] || [];
+    const dataRows = j.values.slice(1);
+    const uIdx = headers.indexOf("Username");
+    const fnIdx= headers.indexOf("First Name");
+    const lnIdx= headers.indexOf("Last Name");
+    if(uIdx<0 || fnIdx<0 || lnIdx<0){
+      setNotification("Missing columns in 'LaSalle Pod' tab.",true);
+      return;
+    }
+
+    // find the row with matching "Username"
+    const row = dataRows.find(r => (r[uIdx]||"").trim().toLowerCase()===user);
+    if(!row){
+      setNotification("User not found in LaSalle Pod data.",true);
+      return;
+    }
+    const fn=(row[fnIdx]||"").trim();
+    const ln=(row[lnIdx]||"").trim();
+    userFullName = fn + " " + ln;
 
     document.getElementById("greeting").textContent="Hello, "+userFullName+"!";
     document.getElementById("loginOverlay").style.display="none";
     document.getElementById("taskScreen").style.display="block";
-  }catch(e){
+  } catch(e){
     spin.style.display="none";
     if(e instanceof TypeError){
       setNotification("Network error - check your connection.",true);
@@ -653,20 +680,32 @@ function startTaskClicked(){
 }
 
 /** 
- * Fetch tasks from the BACKEND_URL, filter for (Associate=user, Status=Ready).
- * If none => show on-call. If found => insert new row (status=Started).
+ * Fetch tasks from the "Backend" Worker endpoint,
+ * filter for (Associate=userFullName, Status=Ready).
+ * If none => show on-call. If found => insert row (status=Started).
  */
 async function loadReadyTasks(){
   try {
     const r=await fetch(BACKEND_URL);
     const data=await r.json();
+    // Our Worker presumably returns { values: [ [col1, col2, ...], ... ] } or something similar
+    if(!data.values) throw new Error("No values array in 'Backend' data");
+    const headers=data.values[0];
+    const rows=data.values.slice(1);
 
-    const lowerName=userFullName.toLowerCase();
-    tasks=data.filter(row=>{
-      const assoc=(row["Associate:"]||"").trim().toLowerCase();
-      const st=(row["Status:"]||"").trim().toLowerCase();
-      return assoc===lowerName && st==="ready";
-    });
+    const assocIdx = headers.indexOf("Associate:");
+    const statusIdx= headers.indexOf("Status:");
+    if(assocIdx<0 || statusIdx<0){
+      throw new Error("Missing columns in 'Backend' tab. Must have 'Associate:' and 'Status:' headers.");
+    }
+
+    // find tasks that match this user & "Ready"
+    tasks = rows.filter(r=>{
+      const assoc=(r[assocIdx]||"").trim();
+      const stat =(r[statusIdx]||"").trim();
+      return (assoc.toLowerCase()===userFullName.toLowerCase()) &&
+             (stat.toLowerCase()==="ready");
+    }).map(r=>convertRowToObj(r, headers));
 
     document.getElementById("startSpinner").style.display="none";
     showLoading(false);
@@ -686,47 +725,57 @@ async function loadReadyTasks(){
     document.getElementById("onCallModal").style.display="none";
     document.getElementById("startTaskBtn").style.display="none";
 
-    // Insert a new row => "Status:" = "Started", "Time:" = "Start: ..." in the BACKEND
+    // Insert a new row => "Status:" = "Started", "Time:" = "Start: <timestamp>"
+    // For demonstration, let's say we do "Stop Task" as separate row. 
+    // If you want to update the same row, you need more logic or a different Worker endpoint.
     const startNow=new Date();
     startTime=startNow;
     const startStr=formatDateTime(startNow);
 
-    await insertRow(BACKEND_URL,{
+    // Insert a new row in "Backend" with status=Started
+    // (In reality, your Worker code might do an append or something else.)
+    const newRowObj={
       ...currentTask,
       "Status:":"Started",
       "Time:":"Start: "+startStr
-    });
+    };
+    await insertRow(BACKEND_URL, newRowObj);
 
-    // Also insert row to Task Data + Task History
-    const rowObj={
+    // Also insert row to TaskData + TaskHistory
+    const rowObj2 = {
       ...currentTask,
       "Status:":"Started",
       "Start Time:":startStr,
-      "Stop Time:":"",
-      "Cumulative Time:":"",
+      "Stop Time":"",
+      "Cumulative Time":"",
       "Associate Notes":"",
-      "Update:":"FALSE"
+      "Update":"FALSE"
     };
-    await insertRow(TASK_DATA_URL, rowObj);
-    await insertRow(TASK_HISTORY_URL, rowObj);
+    await insertRow(TASK_DATA_URL, rowObj2);
+    await insertRow(TASK_HISTORY_URL, rowObj2);
 
-    // CALL APPS SCRIPT CLEANUP HERE
-    // After adding the new row to Task Data, run the duplicate cleanup
-    google.script.run
-      .withSuccessHandler(() => console.log("Cleanup after startTask done."))
-      .withFailureHandler(err => console.error("Cleanup error =>", err))
-      .removeOlderDuplicatesByJobCode();
-
-    // Now show the details of this task
-    await displayTaskDetails(currentTask);
+    // Now show details of this task
+    displayTaskDetails(currentTask);
     document.getElementById("statusOptions").style.display="block";
 
-  }catch(e){
+  } catch(e){
     showLoading(false);
     document.getElementById("startSpinner").style.display="none";
     document.getElementById("startTaskBtn").style.display="inline-block";
     setNotification("Error loading tasks => "+e.message,true);
   }
+}
+
+/** 
+ * Convert a row array [col1, col2, ...] plus headers
+ * into an object like { "Associate:": "...", "Status:": "...", etc. }
+ */
+function convertRowToObj(rowArr, headers){
+  const obj={};
+  headers.forEach((hdr, idx)=>{
+    obj[hdr]=rowArr[idx]||"";
+  });
+  return obj;
 }
 
 /** 
@@ -737,8 +786,11 @@ async function displayTaskDetails(task){
     document.getElementById("taskDetail").innerHTML="<p>No tasks to display.</p>";
     return;
   }
-  const qAssoc=await findDirectQuestion((task["Client:"]||"").trim());
-  document.getElementById("taskDetail").innerHTML=`
+  const clientName=(task["Client:"]||"").trim();
+  const qAssoc=await findDirectQuestion(clientName);
+
+  // Build the HTML 
+  const html=`
     <div class="details-grid">
       <div><b>Client:</b> ${(task["Client:"]||"")}</div>
       <div><b>Parameter 1:</b> ${(task["Parameter 1:"]||"")}</div>
@@ -750,6 +802,7 @@ async function displayTaskDetails(task){
       <div><b>Due Time:</b> ${(task["Due Time:"]||"")}</div>
     </div>
   `;
+  document.getElementById("taskDetail").innerHTML=html;
 }
 
 
@@ -758,9 +811,8 @@ async function displayTaskDetails(task){
    ============================ */
 
 /** 
- * Called when user clicks "Stop Task" => 
- * insert new row in BACKEND (status=Issue/InProgress/Completed),
- * also in Task Data + Task History with "Stop Time," notes, etc.
+ * Called when user clicks "Stop Task" => new row in "Backend" with status=... 
+ * plus new row in "Task Data" + "Task History" with "Stop Time," notes, etc.
  */
 async function stopTask(){
   setNotification("");
@@ -800,39 +852,35 @@ async function stopTask(){
   }
 
   try{
-    // Insert brand new row in BACKEND
     const stopNow=new Date();
-    const combined=`Start: ${formatDateTime(startTime)||"?"} | Stop: ${formatDateTime(stopNow)}`;
-    await insertRow(BACKEND_URL,{
+    const stopStr=formatDateTime(stopNow);
+    const combined=`Start: ${formatDateTime(startTime)||"?"} | Stop: ${stopStr}`;
+
+    // Insert row in "Backend"
+    const newRowObj={
       ...currentTask,
       "Status:": chosen,
       "Time:": combined
-    });
+    };
+    await insertRow(BACKEND_URL, newRowObj);
 
     // Insert row in Task Data + Task History
-    const rowObj={
+    const cTime=(startTime&&stopNow)?computeCumulativeTime(startTime,stopNow):"";
+    const rowObj2={
       ...currentTask,
       "Status:": chosen,
       "Start Time:": formatDateTime(startTime)||"",
-      "Stop Time:": formatDateTime(stopNow)
+      "Stop Time:": stopStr,
+      "Cumulative Time:": cTime,
+      "Associate Notes:": noteVal,
+      "Update":"FALSE"
     };
-    const cTime=(startTime&&stopNow)?computeCumulativeTime(startTime,stopNow):"";
-    rowObj["Cumulative Time:"]=cTime;
-    rowObj["Associate Notes:"]=noteVal;
-    rowObj["Update:"]="FALSE";
+    await insertRow(TASK_DATA_URL, rowObj2);
+    await insertRow(TASK_HISTORY_URL, rowObj2);
 
-    await insertRow(TASK_DATA_URL, rowObj);
-    await insertRow(TASK_HISTORY_URL, rowObj);
-
-    // CALL APPS SCRIPT CLEANUP HERE
-    google.script.run
-      .withSuccessHandler(() => console.log("Cleanup after stopTask done."))
-      .withFailureHandler(err => console.error("Cleanup error =>", err))
-      .removeOlderDuplicatesByJobCode();
-
-  }catch(e){
+  } catch(e){
     setNotification("Error stopping task => "+e.message,true);
-  }finally{
+  } finally {
     resetScreen();
     endStopSpinner();
 
