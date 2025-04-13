@@ -2,13 +2,14 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>AutonomyWorks Workflow (Columns Matched)</title>
+  <title>AutonomyWorks Workflow – Final Consolidated Version</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <style>
     /* 
-      ------------------------------------------------
-      Global & Layout
-      ------------------------------------------------
+      =================================================
+      GLOBAL / LAYOUT
+      =================================================
     */
     * {
       box-sizing: border-box;
@@ -21,9 +22,9 @@
     }
 
     /* 
-      ------------------------------------------------
-      LOADING OVERLAY 
-      ------------------------------------------------
+      =================================================
+      LOADING OVERLAY (pop-up with spinner & message)
+      =================================================
     */
     #loadingOverlay {
       position: fixed;
@@ -31,11 +32,11 @@
       left: 0;
       width: 100%;
       height: 100%;
-      display: none; 
+      display: none; /* toggled in code, not always visible */
       align-items: center;
       justify-content: center;
       background-color: rgba(0,0,0,0.4);
-      z-index: 9999;
+      z-index: 9999; /* on top of everything else */
     }
     #loadingOverlay .loadingContent {
       background: white;
@@ -63,9 +64,9 @@
     }
 
     /* 
-      ------------------------------------------------
-      LOGIN OVERLAY 
-      ------------------------------------------------
+      =================================================
+      LOGIN OVERLAY (username, password, login button)
+      =================================================
     */
     #loginOverlay {
       position: absolute;
@@ -73,15 +74,15 @@
       left: 0;
       width: 100%;
       height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background:
         radial-gradient(ellipse at center, rgba(20,30,60,0.15) 0%, rgba(20,40,70,0.8) 70%, rgba(20,40,70,1) 100%),
         url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1350&q=80')
           no-repeat center center fixed;
       background-size: cover;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
+      z-index: 1000; 
     }
     .login-container {
       background: rgba(255,255,255,0.94);
@@ -110,7 +111,6 @@
       border-radius: 4px;
       margin-top: 10px;
       font-size: 15px;
-      font-family: 'Segoe UI', sans-serif;
     }
     input {
       border: 1px solid #ccc;
@@ -152,13 +152,13 @@
     }
 
     /* 
-      ------------------------------------------------
-      MAIN TASK SCREEN 
-      ------------------------------------------------
+      =================================================
+      MAIN TASK SCREEN
+      =================================================
     */
     #taskScreen {
-      display: none;
-      width: 100%;
+      display: none; 
+      width: 100%; 
       height: 100%;
       background-color: #f0f0f0;
       padding: 20px;
@@ -174,31 +174,32 @@
       padding: 8px 0;
       margin-bottom: 10px;
     }
+
+    /* 
+      We'll center the greeting + Start Task in one container
+    */
+    #centerContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px auto;
+    }
     #greeting {
-      text-align: center;
-      margin: 0 auto 20px;
+      margin: 0 0 20px; /* spacing below greeting */
       font-size: 22px;
       color: #1d3330;
     }
-
-    /* Start Task button */
     #startTaskBtn {
       width: 240px;
       height: 45px;
       font-size: 16px;
     }
-    .spinner-wheel {
-      display: none;
-      margin: 10px auto;
-      width: 30px;
-      height: 30px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #333;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
 
-    /* Task details area (2 columns, responsive) */
+    /* 
+      =================================================
+      TASK DETAILS (2-col grid, responsive)
+      =================================================
+    */
     .details-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -216,7 +217,11 @@
       }
     }
 
-    /* STOP TASK: statuses, notes, button */
+    /* 
+      =================================================
+      STOP TASK: statuses, notes, button
+      =================================================
+    */
     #statusOptions {
       display: none;
       margin: 20px auto;
@@ -232,14 +237,13 @@
     #notes {
       display: none;
       width: 80%;
+      margin: 0 auto; /* center horizontally */
       height: 50px;
       margin-top: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
       padding: 8px;
       font-size: 14px;
-      font-family: 'Segoe UI', sans-serif;
-      transition: border 0.2s;
     }
     .stop-task-container {
       margin-top: 20px;
@@ -269,7 +273,11 @@
       animation: spin 0.8s linear infinite;
     }
 
-    /* ON CALL MODAL */
+    /* 
+      =================================================
+      ON CALL MODAL
+      =================================================
+    */
     #onCallModal {
       display: none;
       position: fixed;
@@ -292,7 +300,11 @@
       border: none;
     }
 
-    /* Logout link (bottom, centered) */
+    /* 
+      =================================================
+      LOGOUT LINK (bottom, centered)
+      =================================================
+    */
     .logout-link {
       position: fixed;
       bottom: 10px;
@@ -314,7 +326,7 @@
 </head>
 <body>
 
-<!-- LOADING OVERLAY -->
+<!-- LOADING OVERLAY (pop-up screen) -->
 <div id="loadingOverlay">
   <div class="loadingContent">
     <div class="bigSpinner"></div>
@@ -328,9 +340,11 @@
     <div class="login-header">
       AutonomyWorks <i class="fa-solid fa-briefcase"></i>
     </div>
+
     <input id="username" placeholder="Username" onkeydown="checkEnter(event)">
     <input id="password" type="password" placeholder="Password" onkeydown="checkEnter(event)">
     <button onclick="login()">Login</button>
+
     <div id="loginSpinner">
       <div class="dot"></div>
       <div class="dot"></div>
@@ -342,18 +356,16 @@
 <!-- MAIN TASK SCREEN -->
 <div id="taskScreen">
   <div id="notificationBar"></div>
-  <h2 id="greeting"></h2>
 
-  <!-- Start Task / Refresh area -->
-  <div style="text-align:center;">
+  <!-- Container for greeting + Start Task (centered) -->
+  <div id="centerContainer">
+    <h2 id="greeting"></h2>
     <button id="startTaskBtn" onclick="startTaskClicked()">Start Task</button>
-    <div id="startSpinner" class="spinner-wheel"></div>
   </div>
 
-  <!-- Task details area -->
   <div id="taskDetail" style="margin-top:20px;"></div>
 
-  <!-- STOP TASK container -->
+  <!-- STOP TASK container (radio statuses, associate notes, button) -->
   <div id="statusOptions">
     <div class="status-container">
       <label>
@@ -399,37 +411,41 @@
 
 <script>
 /*
-  ============================
-  CONFIG / GLOBALS
-  ============================
-  We'll read tasks from /backend (GET) and log new rows to:
-    - /taskData
-    - /taskHistory
+  ===============================
+  1) CONFIG / GLOBALS
+  ===============================
+  We'll read from:
+    - BACKEND (GET) => tasks with "Ready" status
+    - LASALLE_POD (GET) => login
+    - QUESTION_ASSOC => direct question
+  We'll write (POST) to:
+    - TASK_DATA
+    - TASK_HISTORY
+  We'll handle the columns for Task Data / Task History in the 
+  18-column order:
 
-  The columns for BOTH Task Data & Task History are:
-    1)  Update:
-    2)  Start Time:
-    3)  Stop Time:
-    4)  Priority:
-    5)  Associate:
-    6)  Status:
-    7)  Client:
-    8)  Task:
-    9)  Deliverable Name:
-    10) Deliverable ID:
-    11) Parameter 1:
-    12) Parameter 2:
-    13) Production Notes:
-    14) Due Time:
-    15) Due Date:
-    16) Associate Notes:
-    17) Job Code:
-    18) Cumulative Time:
-
-  We'll fill each index carefully so the data goes to correct columns.
+   0)  Update:
+   1)  Start Time:
+   2)  Stop Time:
+   3)  Priority:
+   4)  Associate:
+   5)  Status:
+   6)  Client:
+   7)  Task:
+   8)  Deliverable Name:
+   9)  Deliverable ID:
+   10) Parameter 1:
+   11) Parameter 2:
+   12) Production Notes:
+   13) Due Time:
+   14) Due Date:
+   15) Associate Notes:
+   16) Job Code:
+   17) Cumulative Time:
 */
-const BACKEND_URL        = "https://my-api.bchristoffel02.workers.dev/backend";   // read only
-const TASK_DATA_URL      = "https://my-api.bchristoffel02.workers.dev/taskData";  // post
+
+const BACKEND_URL        = "https://my-api.bchristoffel02.workers.dev/backend";
+const TASK_DATA_URL      = "https://my-api.bchristoffel02.workers.dev/taskData";
 const TASK_HISTORY_URL   = "https://my-api.bchristoffel02.workers.dev/taskHistory";
 const LASALLE_POD_URL    = "https://my-api.bchristoffel02.workers.dev/lasallePod";
 const QUESTION_ASSOC_URL = "https://my-api.bchristoffel02.workers.dev/questionAssociates";
@@ -437,62 +453,63 @@ const QUESTION_ASSOC_URL = "https://my-api.bchristoffel02.workers.dev/questionAs
 // Hardcoded password for demonstration
 const HARDCODED_PASS = "abc123";
 
+// Some shared variables
 let userFullName = "";
 let tasks        = [];
 let currentTask  = null;
 let startTime    = null;
 
 
-/* ============================
-   HELPER / UTILITY
-   ============================ */
-
+/*
+  ===============================
+  2) HELPER / UTILITY
+  ===============================
+*/
 function setNotification(msg, isError=false) {
-  const bar=document.getElementById("notificationBar");
-  if(!msg){
+  const bar = document.getElementById("notificationBar");
+  if(!msg) {
     bar.style.display="none";
-    bar.innerText="";
+    bar.innerText = "";
     return;
   }
   bar.style.display="block";
-  bar.style.color=isError?"red":"#0f5132";
-  bar.innerText=msg;
+  bar.style.color = isError ? "red" : "#0f5132";
+  bar.innerText   = msg;
 }
 
 function highlightInput(id, shouldHighlight){
-  const el=document.getElementById(id);
+  const el = document.getElementById(id);
   if(!el)return;
   if(shouldHighlight) el.classList.add("input-error");
   else el.classList.remove("input-error");
 }
 
+/** Show or hide the #loadingOverlay */
 function showLoading(show) {
-  document.getElementById("loadingOverlay").style.display= show?"flex":"none";
+  document.getElementById("loadingOverlay").style.display = show ? "flex" : "none";
 }
 
-function formatDateTime(d){
-  if(!(d instanceof Date))return"";
-  const pad=n=>(n<10?"0"+n:n);
+/** Format a Date => "MM/DD/YYYY HH:MM:SS" */
+function formatDateTime(d) {
+  if(!(d instanceof Date)) return "";
+  const pad=n=>(n<10 ? "0"+n : ""+n);
   const mm=pad(d.getMonth()+1), dd=pad(d.getDate()), yy=d.getFullYear();
   const hh=pad(d.getHours()), mn=pad(d.getMinutes()), sc=pad(d.getSeconds());
   return `${mm}/${dd}/${yy} ${hh}:${mn}:${sc}`;
 }
 
-function computeCumulativeTime(st,sp){
-  if(!st||!sp)return"";
-  const diff=sp-st, sec=Math.floor(diff/1000);
-  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+/** Return "H:MM:SS" difference between two Date objects */
+function computeCumulativeTime(st, sp){
+  if(!st||!sp)return "";
+  const diff = sp - st, sec = Math.floor(diff/1000);
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
   const pad=n=>(n<10?"0"+n:""+n);
   return `${h}:${pad(m)}:${pad(s)}`;
 }
 
-/**
- * Insert row(s) to Task Data or Task History. 
- * We'll pass an array-of-arrays that lines up with the 18 columns.
- */
-async function insertRow(url, rowArr){
-  // rowArr => e.g. [ [col1, col2, ..., col18], ... ]
-  const resp=await fetch(url, {
+/** Insert row(s) by POSTing to Task Data or Task History (array of arrays) */
+async function insertRow(url, rowArr) {
+  const resp = await fetch(url, {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({ values: rowArr })
@@ -501,88 +518,106 @@ async function insertRow(url, rowArr){
     const txt=await resp.text();
     throw new Error(`${resp.status} ${resp.statusText}\n${txt}`);
   }
-  return await resp.json();
+  return await resp.json(); 
 }
 
-/** For questionAssociates => direct questions */
+/** 
+ * If the user has "Client:" = "Acme", we might fetch questionAssociates 
+ * to find "Primary Contact" or "Backup Contact". 
+ */
 async function findDirectQuestion(clientName){
   if(!clientName)return"";
   try {
     const r=await fetch(QUESTION_ASSOC_URL);
     const j=await r.json();
-    if(!j.values||!Array.isArray(j.values))return"";
-    const headers=j.values[0]||[];
-    const dataRows=j.values.slice(1);
-    const cIdx=headers.indexOf("Client");
-    const pIdx=headers.indexOf("Primary Contact");
-    const sIdx=headers.indexOf("Secondary Contact");
-    const bIdx=headers.indexOf("Backup Contact");
+    if(!j.values || !Array.isArray(j.values)) return "";
+    const headers = j.values[0] || [];
+    const dataRows= j.values.slice(1);
+    const cIdx = headers.indexOf("Client");
+    const pIdx = headers.indexOf("Primary Contact");
+    const sIdx = headers.indexOf("Secondary Contact");
+    const bIdx = headers.indexOf("Backup Contact");
     if(cIdx<0)return"";
-    const row=dataRows.find(rr=>(rr[cIdx]||"").trim().toLowerCase()===clientName.toLowerCase());
+
+    const row = dataRows.find(rr => (rr[cIdx]||"").trim().toLowerCase()===clientName.toLowerCase());
     if(!row)return"";
     return row[pIdx]||row[sIdx]||row[bIdx]||"";
-  }catch(e){
+  } catch(e){
     console.error("Error findDirectQuestion =>", e);
     return"";
   }
 }
 
+/** Reset screen after stopping or logging out */
 function resetScreen(){
   document.getElementById("statusOptions").style.display="none";
+  // Clear notes
   const note=document.getElementById("notes");
   note.value="";
   note.style.display="none";
+
+  // Unselect radio
+  document.querySelectorAll('input[name="stopStatus"]').forEach(r => r.checked = false);
+
+  // Clear currentTask etc.
   currentTask=null;
   startTime=null;
   document.getElementById("taskDetail").innerHTML="";
 }
 
+/** Show #notes once a radio is chosen */
 function statusChosen(){
   document.getElementById("notes").style.display="block";
 }
 
+/** If user hits Enter in the login fields => login() */
 function checkEnter(e){
   if(e.key==="Enter") login();
 }
 
-/* ============================
-   AUTH / LOGIN 
-   ============================ */
+/*
+  ===============================
+  3) LOGIN
+  ===============================
+*/
 async function login(){
   setNotification("");
-  const user=document.getElementById("username").value.trim().toLowerCase();
-  const pass=document.getElementById("password").value.trim();
-  highlightInput("username",!user);
-  highlightInput("password",!pass);
+  const user = document.getElementById("username").value.trim().toLowerCase();
+  const pass = document.getElementById("password").value.trim();
+  highlightInput("username", !user);
+  highlightInput("password", !pass);
 
   if(!user||!pass){
-    setNotification("Username and Password are required.",true);
+    setNotification("Username and Password are required.", true);
     return;
   }
   if(pass!==HARDCODED_PASS){
-    setNotification("Invalid login credentials.",true);
+    setNotification("Invalid login credentials.", true);
     return;
   }
-  const spin=document.getElementById("loginSpinner");
+  const spin = document.getElementById("loginSpinner");
   spin.style.display="block";
   try{
+    // fetch from LaSalle Pod
     const r=await fetch(LASALLE_POD_URL);
     const j=await r.json();
     spin.style.display="none";
 
     if(!j.values||!Array.isArray(j.values)){
-      setNotification("LaSalle Pod data not found or invalid structure.",true);
+      setNotification("LaSalle Pod data not found or invalid structure.", true);
       return;
     }
-    const headers=j.values[0]||[];
-    const dataRows=j.values.slice(1);
-    const uIdx=headers.indexOf("Username");
+    const headers = j.values[0]||[];
+    const dataRows= j.values.slice(1);
+    const uIdx= headers.indexOf("Username");
     const fnIdx=headers.indexOf("First Name");
     const lnIdx=headers.indexOf("Last Name");
     if(uIdx<0||fnIdx<0||lnIdx<0){
       setNotification("Missing columns in 'LaSalle Pod' tab.",true);
       return;
     }
+
+    // find row with matching user
     const row=dataRows.find(rr=>(rr[uIdx]||"").trim().toLowerCase()===user);
     if(!row){
       setNotification("User not found in LaSalle Pod data.",true);
@@ -590,7 +625,7 @@ async function login(){
     }
     const fn=(row[fnIdx]||"").trim();
     const ln=(row[lnIdx]||"").trim();
-    userFullName=fn+" "+ln;
+    userFullName = fn+" "+ln;
 
     document.getElementById("greeting").textContent="Hello, "+userFullName+"!";
     document.getElementById("loginOverlay").style.display="none";
@@ -601,13 +636,14 @@ async function login(){
   }
 }
 
-/* ============================
-   START TASK / REFRESH
-   ============================ */
+/*
+  ===============================
+  4) START TASK / REFRESH
+  ===============================
+*/
 function startTaskClicked(){
   setNotification("");
   document.getElementById("startTaskBtn").style.display="none";
-  document.getElementById("startSpinner").style.display="block";
   showLoading(true);
   loadReadyTasks();
 }
@@ -616,12 +652,12 @@ async function loadReadyTasks(){
   try{
     const r=await fetch(BACKEND_URL);
     const j=await r.json();
-    document.getElementById("startSpinner").style.display="none";
     showLoading(false);
 
     if(!j.values){
       setNotification("Backend data missing 'values'.",true);
       resetScreen();
+      document.getElementById("startTaskBtn").style.display="inline-block";
       return;
     }
     const headers=j.values[0]||[];
@@ -631,10 +667,10 @@ async function loadReadyTasks(){
     if(assocIdx<0||statusIdx<0){
       setNotification("Missing 'Associate:' or 'Status:' columns in Backend tab.",true);
       resetScreen();
+      document.getElementById("startTaskBtn").style.display="inline-block";
       return;
     }
 
-    // Filter tasks => Associate===userFullName, Status===ready
     tasks=dataRows.filter(row=>{
       const assoc=(row[assocIdx]||"").trim().toLowerCase();
       const stat =(row[statusIdx]||"").trim().toLowerCase();
@@ -643,11 +679,9 @@ async function loadReadyTasks(){
 
     if(!tasks.length){
       setNotification("You are on call. No tasks found.");
-      const btn=document.getElementById("startTaskBtn");
-      btn.style.display="inline-block";
-      btn.innerText="Refresh";
+      document.getElementById("startTaskBtn").style.display="inline-block";
+      document.getElementById("startTaskBtn").innerText="Refresh";
       document.getElementById("onCallModal").style.display="block";
-      setTimeout(()=>setNotification("Reminder: Please refresh every 5 mins."),300000);
       resetScreen();
       return;
     }
@@ -656,61 +690,58 @@ async function loadReadyTasks(){
     const rowArr=tasks[0];
     const taskObj=convertRowToObj(rowArr, headers);
     currentTask=taskObj;
+    startTime=new Date();
     document.getElementById("onCallModal").style.display="none";
-    document.getElementById("startTaskBtn").style.display="none";
 
-    // Insert row => "Started" in Task Data + Task History
-    const startNow=new Date();
-    startTime=startNow;
-    const startStr=formatDateTime(startNow);
+    // Insert a new row => "Started" in Task Data + Task History
+    const startStr=formatDateTime(startTime);
 
-    // 18 columns (in order):
-    // 0-Update:, 1-Start Time:, 2-Stop Time:, 3-Priority:, 4-Associate:, 
-    // 5-Status:, 6-Client:, 7-Task:, 8-Deliverable Name:, 9-Deliverable ID:, 
-    // 10-Parameter 1:, 11-Parameter 2:, 12-Production Notes:, 13-Due Time:, 
-    // 14-Due Date:, 15-Associate Notes:, 16-Job Code:, 17-Cumulative Time:
-
-    // We'll fill them. For start, "Stop Time:" => "", "Cumulative Time:" => "", etc.
-    // If you want priority or job code, adapt as needed. Otherwise, put "" or some default.
+    // 18 columns in the correct order
+    // index => meaning:
+    // 0) Update:    1) Start Time:   2) Stop Time:    3) Priority:
+    // 4) Associate: 5) Status:       6) Client:       7) Task:
+    // 8) Deliv Name 9) Deliv ID      10) Param1       11) Param2
+    // 12) Prod Notes13) Due Time:    14) Due Date:    15) Assoc Notes
+    // 16) Job Code: 17) Cumulative:
 
     const row = [
-      "FALSE",               // 0) Update: 
-      startStr,             // 1) Start Time:
-      "",                   // 2) Stop Time:
-      "",                   // 3) Priority:
-      userFullName,         // 4) Associate:
-      "Started",            // 5) Status:
-      taskObj["Client:"],   // 6) Client:
-      taskObj["Task:"],     // 7) Task:
-      taskObj["Deliverable Name:"],  // 8
-      taskObj["Deliverable ID:"],    // 9
-      taskObj["Parameter 1:"],       // 10
-      taskObj["Parameter 2:"],       // 11
-      taskObj["Production Notes:"],  // 12
-      taskObj["Due Time:"],          // 13
-      taskObj["Due Date:"],          // 14
-      "",                   // 15) Associate Notes:
-      taskObj["Job Code:"], // 16) Job Code:
-      ""                    // 17) Cumulative Time:
+      "FALSE",                // 0) Update
+      startStr,              // 1) Start Time
+      "",                    // 2) Stop Time
+      "",                    // 3) Priority
+      userFullName,          // 4) Associate
+      "Started",             // 5) Status
+      taskObj["Client:"],    // 6) Client
+      taskObj["Task:"],      // 7) Task
+      taskObj["Deliverable Name:"], // 8
+      taskObj["Deliverable ID:"],   // 9
+      taskObj["Parameter 1:"],      //10
+      taskObj["Parameter 2:"],      //11
+      taskObj["Production Notes:"], //12
+      taskObj["Due Time:"],         //13
+      taskObj["Due Date:"],         //14
+      "",                    // 15) Associate Notes
+      taskObj["Job Code:"],  // 16) Job Code
+      ""                     // 17) Cumulative Time
     ];
 
-    await insertRow(TASK_DATA_URL,    [row]);
+    await insertRow(TASK_DATA_URL, [row]);
     await insertRow(TASK_HISTORY_URL, [row]);
 
+    document.getElementById("startTaskBtn").style.display="none";
     displayTaskDetails(taskObj);
     document.getElementById("statusOptions").style.display="block";
   }catch(e){
     showLoading(false);
-    document.getElementById("startSpinner").style.display="none";
     document.getElementById("startTaskBtn").style.display="inline-block";
-    setNotification("Error loading tasks => "+e.message,true);
+    setNotification("Error => "+e.message,true);
   }
 }
 
 function convertRowToObj(rowArr, headers){
   const obj={};
   headers.forEach((hdr,i)=>{
-    obj[hdr] = rowArr[i]||"";
+    obj[hdr]=rowArr[i]||"";
   });
   return obj;
 }
@@ -733,13 +764,16 @@ async function displayTaskDetails(task){
       <div><b>Production Notes:</b> ${(task["Production Notes:"]||"")}</div>
       <div><b>Direct Questions To:</b> ${qAssoc||""}</div>
       <div><b>Due Time:</b> ${(task["Due Time:"]||"")}</div>
-    </div>`;
+    </div>
+  `;
   document.getElementById("taskDetail").innerHTML=html;
 }
 
-/* ============================
-   STOP TASK
-   ============================ */
+/*
+  ===============================
+  5) STOP TASK
+  ===============================
+*/
 async function stopTask(){
   setNotification("");
   document.getElementById("stopSpinner").style.display="block";
@@ -747,7 +781,7 @@ async function stopTask(){
   showLoading(true);
 
   if(!currentTask){
-    setNotification("No current task to stop.",true);
+    setNotification("No current task to stop.", true);
     endStopSpinner();
     return;
   }
@@ -778,32 +812,29 @@ async function stopTask(){
     const stopStr=formatDateTime(stopNow);
     const cTime=computeCumulativeTime(startTime, stopNow);
 
-    // 18 columns => same order as for "start"
-    // We'll fill Start Time with the old startTime, Stop Time with now
-    // Associate Notes => noteVal, Status => chosen, etc.
-
+    // build row with 18 columns in order
     const row = [
-      "FALSE",                    // 0) Update:
-      formatDateTime(startTime), // 1) Start Time:
-      stopStr,                   // 2) Stop Time:
-      "",                        // 3) Priority:
-      userFullName,              // 4) Associate:
-      chosen,                    // 5) Status:
-      currentTask["Client:"],    // 6) Client:
-      currentTask["Task:"],      // 7) Task:
-      currentTask["Deliverable Name:"], // 8
-      currentTask["Deliverable ID:"],   // 9
-      currentTask["Parameter 1:"],      //10
-      currentTask["Parameter 2:"],      //11
-      currentTask["Production Notes:"], //12
-      currentTask["Due Time:"],         //13
-      currentTask["Due Date:"],         //14
-      noteVal,                  // 15) Associate Notes:
-      currentTask["Job Code:"], // 16) Job Code:
-      cTime                     // 17) Cumulative Time:
+      "FALSE",                         // 0) Update
+      formatDateTime(startTime)||"",   // 1) Start Time
+      stopStr,                         // 2) Stop Time
+      "",                              // 3) Priority
+      userFullName,                    // 4) Associate
+      chosen,                          // 5) Status
+      currentTask["Client:"],          // 6) Client
+      currentTask["Task:"],            // 7) Task
+      currentTask["Deliverable Name:"],// 8
+      currentTask["Deliverable ID:"],  // 9
+      currentTask["Parameter 1:"],     //10
+      currentTask["Parameter 2:"],     //11
+      currentTask["Production Notes:"],//12
+      currentTask["Due Time:"],        //13
+      currentTask["Due Date:"],        //14
+      noteVal,                         // 15) Associate Notes
+      currentTask["Job Code:"],        // 16) Job Code
+      cTime                            // 17) Cumulative Time
     ];
 
-    await insertRow(TASK_DATA_URL,    [row]);
+    await insertRow(TASK_DATA_URL, [row]);
     await insertRow(TASK_HISTORY_URL, [row]);
 
   }catch(e){
@@ -822,9 +853,11 @@ function endStopSpinner(){
   showLoading(false);
 }
 
-/* ============================
-   ON CALL / LOGOUT
-   ============================ */
+/*
+  ===============================
+  6) ON CALL / LOGOUT
+  ===============================
+*/
 function closeOnCall(){
   document.getElementById("onCallModal").style.display="none";
   resetScreen();
