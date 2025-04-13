@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>AutonomyWorks Workflow (No POST to /backend)</title>
+  <title>AutonomyWorks Workflow (Read from Backend Only)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* 
@@ -402,23 +402,20 @@
   ============================
   CONFIG / GLOBALS
   ============================
-  Replacing old references with Worker endpoints:
-  1) GET /backend        => read tasks
-  2) GET or POST /taskData => log start/stop
-  3) GET or POST /taskHistory => log start/stop
-  4) GET /lasallePod     => login
-  5) GET /questionAssociates => direct questions
+  We'll only do GET from /backend to find "Ready" tasks.
+  We do NOT POST to /backend, so no "Not Found (POST)" errors.
 
-  We do NOT post to /backend anymore. Just GET from it to find tasks.
+  We still POST new rows to /taskData and /taskHistory 
+  to log start/stop times, cumulative time, notes, etc.
 */
-const BACKEND_URL        = "https://my-api.bchristoffel02.workers.dev/backend";      // GET only
-const TASK_DATA_URL      = "https://my-api.bchristoffel02.workers.dev/taskData";    // GET or POST
-const TASK_HISTORY_URL   = "https://my-api.bchristoffel02.workers.dev/taskHistory"; // GET or POST
-const LASALLE_POD_URL    = "https://my-api.bchristoffel02.workers.dev/lasallePod";  
+const BACKEND_URL        = "https://my-api.bchristoffel02.workers.dev/backend";   // GET only
+const TASK_DATA_URL      = "https://my-api.bchristoffel02.workers.dev/taskData";  // POST logs
+const TASK_HISTORY_URL   = "https://my-api.bchristoffel02.workers.dev/taskHistory";// POST logs
+const LASALLE_POD_URL    = "https://my-api.bchristoffel02.workers.dev/lasallePod";
 const QUESTION_ASSOC_URL = "https://my-api.bchristoffel02.workers.dev/questionAssociates";
 
-// Hardcoded password for demo
-const HARDCODED_PASS     = "abc123";
+// Hardcoded password for demonstration
+const HARDCODED_PASS = "abc123";
 
 let userFullName = "";
 let tasks        = [];
@@ -430,112 +427,98 @@ let startTime    = null;
    HELPER / UTILITY
    ============================ */
 
-/** Show/hide a notification bar */
 function setNotification(msg, isError=false) {
-  const bar = document.getElementById("notificationBar");
-  if(!msg) {
+  const bar=document.getElementById("notificationBar");
+  if(!msg){
     bar.style.display="none";
-    bar.innerText = "";
+    bar.innerText="";
     return;
   }
   bar.style.display="block";
-  bar.style.color = isError ? "red" : "#0f5132";
-  bar.innerText   = msg;
+  bar.style.color=isError?"red":"#0f5132";
+  bar.innerText=msg;
 }
 
-/** Mark an input with red if needed */
 function highlightInput(id, shouldHighlight){
-  const el = document.getElementById(id);
+  const el=document.getElementById(id);
   if(!el)return;
-  if(shouldHighlight) el.classList.add("input-error");
+  if(shouldHighlight)el.classList.add("input-error");
   else el.classList.remove("input-error");
 }
 
-/** Show or hide the big #loadingOverlay */
 function showLoading(show) {
-  document.getElementById("loadingOverlay").style.display = show ? "flex" : "none";
+  document.getElementById("loadingOverlay").style.display=show?"flex":"none";
 }
 
-/** Format a Date => "MM/DD/YYYY HH:MM:SS" */
-function formatDateTime(d) {
-  if(!(d instanceof Date))return "";
+function formatDateTime(d){
+  if(!(d instanceof Date))return"";
   const pad=n=>(n<10?"0"+n:""+n);
   const mm=pad(d.getMonth()+1), dd=pad(d.getDate()), yy=d.getFullYear();
   const hh=pad(d.getHours()), mn=pad(d.getMinutes()), sc=pad(d.getSeconds());
   return `${mm}/${dd}/${yy} ${hh}:${mn}:${sc}`;
 }
 
-/** Return "H:MM:SS" between two Date objects */
 function computeCumulativeTime(st,sp){
-  if(!st||!sp)return "";
+  if(!st||!sp)return"";
   const diff=sp-st, sec=Math.floor(diff/1000);
   const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
   const pad=n=>(n<10?"0"+n:""+n);
   return `${h}:${pad(m)}:${pad(s)}`;
 }
 
-/** Insert row(s) by POST to /taskData or /taskHistory */
-async function insertRow(url, rowArr) {
-  // rowArr is an array of arrays for "values"
-  // e.g. [ ["bchristoffel","Started","09/01/2025 08:00:00","",...] ]
-  const resp=await fetch(url, {
+/** Insert row(s) to /taskData or /taskHistory */
+async function insertRow(url, rowArr){
+  const r=await fetch(url, {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({ values: rowArr })
   });
-  if(!resp.ok){
-    const txt=await resp.text();
-    throw new Error(`${resp.status} ${resp.statusText}\n${txt}`);
+  if(!r.ok){
+    const txt=await r.text();
+    throw new Error(`${r.status} ${r.statusText}\n${txt}`);
   }
-  return await resp.json();
+  return await r.json();
 }
 
-/** 
- * For direct questions (Client => Primary Contact):
- * We fetch questionAssociates => j.values => parse 
- */
+/** fetch questionAssociates => j.values => parse for direct question */
 async function findDirectQuestion(clientName){
   if(!clientName)return"";
-  try {
+  try{
     const r=await fetch(QUESTION_ASSOC_URL);
     const j=await r.json();
-    if(!j.values || !Array.isArray(j.values)) return "";
+    if(!j.values||!Array.isArray(j.values))return"";
     const headers=j.values[0]||[];
     const dataRows=j.values.slice(1);
     const cIdx=headers.indexOf("Client");
     const pIdx=headers.indexOf("Primary Contact");
     const sIdx=headers.indexOf("Secondary Contact");
     const bIdx=headers.indexOf("Backup Contact");
-    if(cIdx<0) return "";
-
+    if(cIdx<0)return"";
     const row=dataRows.find(rr=>(rr[cIdx]||"").trim().toLowerCase()===clientName.toLowerCase());
     if(!row)return"";
     return row[pIdx]||row[sIdx]||row[bIdx]||"";
   }catch(e){
     console.error("Error findDirectQuestion =>", e);
-    return "";
+    return"";
   }
 }
 
-/** Reset screen after stop or logout */
 function resetScreen(){
   document.getElementById("statusOptions").style.display="none";
-  const noteEl=document.getElementById("notes");
-  noteEl.value="";
-  noteEl.style.display="none";
+  const note=document.getElementById("notes");
+  note.value="";
+  note.style.display="none";
   currentTask=null;
   startTime=null;
   document.getElementById("taskDetail").innerHTML="";
 }
 
-/** Show #notes when user picks a radio */
 function statusChosen(){
   document.getElementById("notes").style.display="block";
 }
 
-/** If user hits Enter => login() */
 function checkEnter(e){
-  if(e.key==="Enter") login();
+  if(e.key==="Enter")login();
 }
 
 /* ============================
@@ -559,11 +542,11 @@ async function login(){
   const spin=document.getElementById("loginSpinner");
   spin.style.display="block";
   try{
-    const r=await fetch(LASALLE_POD_URL);
-    const j=await r.json();
+    const resp=await fetch(LASALLE_POD_URL);
+    const j=await resp.json();
     spin.style.display="none";
 
-    if(!j.values || !Array.isArray(j.values)){
+    if(!j.values||!Array.isArray(j.values)){
       setNotification("LaSalle Pod data not found or invalid structure.",true);
       return;
     }
@@ -576,6 +559,8 @@ async function login(){
       setNotification("Missing columns in 'LaSalle Pod' tab.",true);
       return;
     }
+
+    // find the row with matching user
     const row=dataRows.find(rr=>(rr[uIdx]||"").trim().toLowerCase()===user);
     if(!row){
       setNotification("User not found in LaSalle Pod data.",true);
@@ -607,8 +592,8 @@ function startTaskClicked(){
 
 async function loadReadyTasks(){
   try{
-    const r=await fetch(BACKEND_URL);
-    const j=await r.json();
+    const resp=await fetch(BACKEND_URL);
+    const j=await resp.json();
     document.getElementById("startSpinner").style.display="none";
     showLoading(false);
 
@@ -626,6 +611,7 @@ async function loadReadyTasks(){
       resetScreen();
       return;
     }
+
     tasks=dataRows.filter(row=>{
       const assoc=(row[assocIdx]||"").trim().toLowerCase();
       const stat =(row[statusIdx]||"").trim().toLowerCase();
@@ -643,8 +629,7 @@ async function loadReadyTasks(){
       return;
     }
 
-    // We have at least 1 "Ready" task
-    // We'll just take the first
+    // We have at least 1 "Ready" task, so let's pick the first
     const rowArr=tasks[0];
     const taskObj=convertRowToObj(rowArr, headers);
     currentTask=taskObj;
@@ -656,15 +641,13 @@ async function loadReadyTasks(){
     startTime=startNow;
     const startStr=formatDateTime(startNow);
 
-    // Example row arrays for your columns
-    // e.g. [ "Associate:", "Status", "Start Time:", "Stop Time:", "Cumulative Time:", "Notes" ]
-    const rowForTaskDataHistory=[
+    // Example columns: [ "Associate:", "Status", "Start Time:", "Stop Time:", "Cumulative Time:", "Notes" ]
+    const rowToInsert=[
       [ userFullName, "Started", startStr, "", "", "" ]
     ];
-    await insertRow(TASK_DATA_URL, rowForTaskDataHistory);
-    await insertRow(TASK_HISTORY_URL, rowForTaskDataHistory);
+    await insertRow(TASK_DATA_URL, rowToInsert);
+    await insertRow(TASK_HISTORY_URL, rowToInsert);
 
-    // Now show details
     await displayTaskDetails(currentTask);
     document.getElementById("statusOptions").style.display="block";
   }catch(e){
@@ -745,13 +728,12 @@ async function stopTask(){
     const stopNow=new Date();
     const stopStr=formatDateTime(stopNow);
     const cTime=computeCumulativeTime(startTime, stopNow);
-
     // Insert row => "Stopped" in Task Data + Task History
-    const rowForTaskDataHistory=[
+    const rowArr=[
       [ userFullName, chosen, formatDateTime(startTime)||"", stopStr, cTime, noteVal ]
     ];
-    await insertRow(TASK_DATA_URL, rowForTaskDataHistory);
-    await insertRow(TASK_HISTORY_URL, rowForTaskDataHistory);
+    await insertRow(TASK_DATA_URL, rowArr);
+    await insertRow(TASK_HISTORY_URL, rowArr);
 
   }catch(e){
     setNotification("Error stopping task => "+e.message,true);
@@ -774,6 +756,7 @@ function endStopSpinner(){
    ============================ */
 function closeOnCall(){
   document.getElementById("onCallModal").style.display="none";
+  resetScreen();
 }
 
 function logout(){
