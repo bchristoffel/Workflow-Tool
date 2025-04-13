@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>AutonomyWorks Workflow (All Changes Integrated)</title>
+  <title>AutonomyWorks Workflow (No Apps Script Calls)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* 
@@ -243,8 +243,8 @@
     }
     #notes {
       display: none;
-      width: 80%;    /* wide */
-      height: 50px;  /* short height */
+      width: 80%;
+      height: 50px;
       margin-top: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
@@ -529,29 +529,17 @@ async function findDirectQuestion(clientName){
   try {
     const r=await fetch(QUESTION_ASSOC_URL);
     const j=await r.json();
-    // The Worker returns an object with .values or similar
-    // We'll assume j.values is a 2D array or something
-    // Or if your Worker code returns:
-    //  { range: "Question Associates...", values: [ [...], [...], ... ] }
-    // Then you parse it here:
     if(!j.values || !Array.isArray(j.values)) return "";
-    // The first row might be headers => find the column indexes
-    // Or if you want to do a quick find, parse the array for the row 
-    // that matches the clientName. This depends on how your data is structured.
-    // For simplicity, let's assume "Client" is col0 and "Primary Contact" is col1, etc.
-    // Example:
     const headers = j.values[0] || [];
-    const dataRows = j.values.slice(1); 
+    const dataRows = j.values.slice(1);
     const cIdx = headers.indexOf("Client");
     const pIdx = headers.indexOf("Primary Contact");
     const sIdx = headers.indexOf("Secondary Contact");
     const bIdx = headers.indexOf("Backup Contact");
     if(cIdx<0) return "";
 
-    // find the row
-    const row = dataRows.find(r => (r[cIdx]||"").trim().toLowerCase() === clientName.toLowerCase());
+    const row = dataRows.find(rr => (rr[cIdx]||"").trim().toLowerCase() === clientName.toLowerCase());
     if(!row)return"";
-    // if we found it, pick whichever contact is not empty
     return row[pIdx] || row[sIdx] || row[bIdx] || "";
   } catch(e){
     console.error("Error findDirectQuestion =>", e);
@@ -618,13 +606,10 @@ async function login(){
   const spin=document.getElementById("loginSpinner");
   spin.style.display="block";
   try {
-    // We'll do a GET on the /lasallePod Worker endpoint
     const r=await fetch(LASALLE_POD_URL);
     const j=await r.json();
     spin.style.display="none";
 
-    // If your Worker code returns something like { values: [ [...], [...], ... ] }
-    // you'll need to parse that. This example is the same approach as in findDirectQuestion.
     if(!j.values || !Array.isArray(j.values)){
       setNotification("LaSalle Pod data not found or invalid structure.",true);
       return;
@@ -680,15 +665,14 @@ function startTaskClicked(){
 }
 
 /** 
- * Fetch tasks from the "Backend" Worker endpoint,
- * filter for (Associate=userFullName, Status=Ready).
- * If none => show on-call. If found => insert row (status=Started).
+ * Fetch tasks from the BACKEND_URL, parse row data,
+ * filter for (Associate=user, Status=Ready).
+ * If none => on-call. If found => insert row (status=Started).
  */
 async function loadReadyTasks(){
   try {
     const r=await fetch(BACKEND_URL);
     const data=await r.json();
-    // Our Worker presumably returns { values: [ [col1, col2, ...], ... ] } or something similar
     if(!data.values) throw new Error("No values array in 'Backend' data");
     const headers=data.values[0];
     const rows=data.values.slice(1);
@@ -699,12 +683,10 @@ async function loadReadyTasks(){
       throw new Error("Missing columns in 'Backend' tab. Must have 'Associate:' and 'Status:' headers.");
     }
 
-    // find tasks that match this user & "Ready"
-    tasks = rows.filter(r=>{
-      const assoc=(r[assocIdx]||"").trim();
-      const stat =(r[statusIdx]||"").trim();
-      return (assoc.toLowerCase()===userFullName.toLowerCase()) &&
-             (stat.toLowerCase()==="ready");
+    tasks = rows.filter(row=>{
+      const assoc=(row[assocIdx]||"").trim().toLowerCase();
+      const stat =(row[statusIdx]||"").trim().toLowerCase();
+      return assoc===userFullName.toLowerCase() && stat==="ready";
     }).map(r=>convertRowToObj(r, headers));
 
     document.getElementById("startSpinner").style.display="none";
@@ -725,15 +707,11 @@ async function loadReadyTasks(){
     document.getElementById("onCallModal").style.display="none";
     document.getElementById("startTaskBtn").style.display="none";
 
-    // Insert a new row => "Status:" = "Started", "Time:" = "Start: <timestamp>"
-    // For demonstration, let's say we do "Stop Task" as separate row. 
-    // If you want to update the same row, you need more logic or a different Worker endpoint.
     const startNow=new Date();
     startTime=startNow;
     const startStr=formatDateTime(startNow);
 
-    // Insert a new row in "Backend" with status=Started
-    // (In reality, your Worker code might do an append or something else.)
+    // Insert row => "Started" in Backend
     const newRowObj={
       ...currentTask,
       "Status:":"Started",
@@ -741,7 +719,7 @@ async function loadReadyTasks(){
     };
     await insertRow(BACKEND_URL, newRowObj);
 
-    // Also insert row to TaskData + TaskHistory
+    // Insert row => "Started" in Task Data & Task History
     const rowObj2 = {
       ...currentTask,
       "Status:":"Started",
@@ -754,11 +732,11 @@ async function loadReadyTasks(){
     await insertRow(TASK_DATA_URL, rowObj2);
     await insertRow(TASK_HISTORY_URL, rowObj2);
 
-    // Now show details of this task
+    // Show details
     displayTaskDetails(currentTask);
     document.getElementById("statusOptions").style.display="block";
 
-  } catch(e){
+  }catch(e){
     showLoading(false);
     document.getElementById("startSpinner").style.display="none";
     document.getElementById("startTaskBtn").style.display="inline-block";
@@ -767,8 +745,7 @@ async function loadReadyTasks(){
 }
 
 /** 
- * Convert a row array [col1, col2, ...] plus headers
- * into an object like { "Associate:": "...", "Status:": "...", etc. }
+ * Convert row array => object using the given headers
  */
 function convertRowToObj(rowArr, headers){
   const obj={};
@@ -789,7 +766,6 @@ async function displayTaskDetails(task){
   const clientName=(task["Client:"]||"").trim();
   const qAssoc=await findDirectQuestion(clientName);
 
-  // Build the HTML 
   const html=`
     <div class="details-grid">
       <div><b>Client:</b> ${(task["Client:"]||"")}</div>
@@ -809,11 +785,6 @@ async function displayTaskDetails(task){
 /* ============================
    STOP TASK
    ============================ */
-
-/** 
- * Called when user clicks "Stop Task" => new row in "Backend" with status=... 
- * plus new row in "Task Data" + "Task History" with "Stop Time," notes, etc.
- */
 async function stopTask(){
   setNotification("");
   document.getElementById("stopSpinner").style.display="block";
@@ -856,7 +827,7 @@ async function stopTask(){
     const stopStr=formatDateTime(stopNow);
     const combined=`Start: ${formatDateTime(startTime)||"?"} | Stop: ${stopStr}`;
 
-    // Insert row in "Backend"
+    // Insert row => "Stopped" in Backend
     const newRowObj={
       ...currentTask,
       "Status:": chosen,
@@ -864,7 +835,7 @@ async function stopTask(){
     };
     await insertRow(BACKEND_URL, newRowObj);
 
-    // Insert row in Task Data + Task History
+    // Insert row => "Stopped" in Task Data + Task History
     const cTime=(startTime&&stopNow)?computeCumulativeTime(startTime,stopNow):"";
     const rowObj2={
       ...currentTask,
@@ -883,15 +854,11 @@ async function stopTask(){
   } finally {
     resetScreen();
     endStopSpinner();
-
     document.getElementById("startTaskBtn").style.display="inline-block";
     document.getElementById("startTaskBtn").innerText="Start Task";
   }
 }
 
-/** 
- * Show stop button again, hide spinner, hide loading overlay
- */
 function endStopSpinner(){
   document.getElementById("stopSpinner").style.display="none";
   document.querySelector(".stop-btn").style.display="inline-block";
@@ -902,19 +869,10 @@ function endStopSpinner(){
 /* ============================
    ON CALL / LOGOUT
    ============================ */
-
-/** Called if user closes the On Call modal */
 function closeOnCall(){
   document.getElementById("onCallModal").style.display="none";
 }
 
-/** 
- * Log out => 
- * 1) clear screen
- * 2) hide #taskScreen
- * 3) show #loginOverlay
- * 4) clear username/password
- */
 function logout(){
   setNotification("");
   resetScreen();
