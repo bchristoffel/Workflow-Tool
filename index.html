@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>AutonomyWorks Workflow (No Apps Script Calls)</title>
+  <title>AutonomyWorks Workflow (With POST Logging)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* 
@@ -22,7 +22,7 @@
 
     /* 
       ------------------------------------------------
-      LOADING OVERLAY for Start/Stop tasks (with spinner)
+      LOADING OVERLAY 
       ------------------------------------------------
     */
     #loadingOverlay {
@@ -31,11 +31,11 @@
       left: 0;
       width: 100%;
       height: 100%;
-      display: none; /* toggled on/off in code */
+      display: none; 
       align-items: center;
       justify-content: center;
       background-color: rgba(0,0,0,0.4);
-      z-index: 9999; /* above everything else */
+      z-index: 9999;
     }
     #loadingOverlay .loadingContent {
       background: white;
@@ -164,7 +164,7 @@
       padding: 20px;
       position: relative;
       overflow: auto;
-      z-index: 1; /* behind the loading overlay if shown */
+      z-index: 1;
     }
     #notificationBar {
       display: none;
@@ -181,11 +181,7 @@
       color: #1d3330;
     }
 
-    /* 
-      ------------------------------------------------
-      Start Task button (short/wide)
-      ------------------------------------------------
-    */
+    /* Start Task button */
     #startTaskBtn {
       width: 240px;
       height: 45px;
@@ -202,11 +198,7 @@
       animation: spin 0.8s linear infinite;
     }
 
-    /* 
-      ------------------------------------------------
-      Task details area (2 columns, responsive)
-      ------------------------------------------------
-    */
+    /* Task details area (2 columns, responsive) */
     .details-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -224,11 +216,7 @@
       }
     }
 
-    /*
-      ------------------------------------------------
-      STOP TASK: statuses, notes, button
-      ------------------------------------------------
-    */
+    /* STOP TASK: statuses, notes, button */
     #statusOptions {
       display: none;
       margin: 20px auto;
@@ -281,11 +269,7 @@
       animation: spin 0.8s linear infinite;
     }
 
-    /* 
-      ------------------------------------------------
-      ON CALL MODAL 
-      ------------------------------------------------
-    */
+    /* ON CALL MODAL */
     #onCallModal {
       display: none;
       position: fixed;
@@ -308,12 +292,7 @@
       border: none;
     }
 
-    /* 
-      ------------------------------------------------
-      Logout link 
-      (bottom, centered)
-      ------------------------------------------------
-    */
+    /* Logout link (bottom, centered) */
     .logout-link {
       position: fixed;
       bottom: 10px;
@@ -423,24 +402,25 @@
   ============================
   CONFIG / GLOBALS
   ============================
-  Replacing old SheetDB links with 5 Worker endpoints:
-  1) /backend
-  2) /taskData
-  3) /taskHistory
-  4) /lasallePod
-  5) /questionAssociates
-*/
-const BACKEND_URL           = "https://my-api.bchristoffel02.workers.dev/backend";
-const TASK_DATA_URL         = "https://my-api.bchristoffel02.workers.dev/taskData";
-const TASK_HISTORY_URL      = "https://my-api.bchristoffel02.workers.dev/taskHistory";
-const LASALLE_POD_URL       = "https://my-api.bchristoffel02.workers.dev/lasallePod";
-const QUESTION_ASSOC_URL    = "https://my-api.bchristoffel02.workers.dev/questionAssociates";
 
-/* 
+  Replacing old references with 5 Worker endpoints:
+  1) /backend        (GET) to see tasks
+  2) /taskData       (GET, or POST to log start/stop rows)
+  3) /taskHistory    (GET, or POST to log start/stop rows)
+  4) /lasallePod     (GET, used for verifying user in login)
+  5) /questionAssociates (GET, used for direct questions)
+*/
+const BACKEND_URL        = "https://my-api.bchristoffel02.workers.dev/backend";
+const TASK_DATA_URL      = "https://my-api.bchristoffel02.workers.dev/taskData";
+const TASK_HISTORY_URL   = "https://my-api.bchristoffel02.workers.dev/taskHistory";
+const LASALLE_POD_URL    = "https://my-api.bchristoffel02.workers.dev/lasallePod";
+const QUESTION_ASSOC_URL = "https://my-api.bchristoffel02.workers.dev/questionAssociates";
+
+/*
   Hardcoded password for demonstration.
   If you need real auth, you'd implement a secure backend check.
 */
-const HARDCODED_PASS   = "abc123";
+const HARDCODED_PASS = "abc123";
 
 let userFullName = "";
 let tasks        = [];
@@ -453,8 +433,7 @@ let startTime    = null;
    ============================ */
 
 /** 
- * Set a notification message in #notificationBar,
- * with an optional isError boolean for red text. 
+ * Show/hide #notificationBar
  */
 function setNotification(msg, isError=false) {
   const bar = document.getElementById("notificationBar");
@@ -464,33 +443,33 @@ function setNotification(msg, isError=false) {
     return;
   }
   bar.style.display="block";
-  bar.style.color=isError?"red":"#0f5132";
-  bar.innerText=msg;
+  bar.style.color=isError ? "red" : "#0f5132";
+  bar.innerText = msg;
 }
 
 /** 
- * Add or remove the .input-error class from an input 
+ * Mark an input with red border if needed 
  */
 function highlightInput(id, shouldHighlight){
   const el=document.getElementById(id);
   if(!el)return;
-  if(shouldHighlight)el.classList.add("input-error");
+  if(shouldHighlight) el.classList.add("input-error");
   else el.classList.remove("input-error");
 }
 
 /** 
- * Show or hide the big loading overlay 
+ * Show or hide the big #loadingOverlay 
  */
 function showLoading(show) {
   document.getElementById("loadingOverlay").style.display = show ? "flex" : "none";
 }
 
 /** 
- * Format Date => "MM/DD/YYYY HH:MM:SS" 
+ * Format a Date => "MM/DD/YYYY HH:MM:SS" 
  */
 function formatDateTime(d) {
-  if(!(d instanceof Date))return"";
-  const pad=n=>(n<10?"0"+n:""+n);
+  if(!(d instanceof Date))return "";
+  const pad=n=>(n<10 ? "0"+n : ""+n);
   const mm=pad(d.getMonth()+1), dd=pad(d.getDate()), yy=d.getFullYear();
   const hh=pad(d.getHours()), mn=pad(d.getMinutes()), sc=pad(d.getSeconds());
   return `${mm}/${dd}/${yy} ${hh}:${mn}:${sc}`;
@@ -500,29 +479,36 @@ function formatDateTime(d) {
  * Return "H:MM:SS" difference between two Date objects 
  */
 function computeCumulativeTime(st,sp){
-  if(!st||!sp)return"";
+  if(!st||!sp)return "";
   const diff=sp-st, sec=Math.floor(diff/1000);
   const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
-  const pad=n=>(n<10?"0"+n:n);
+  const pad=n=>(n<10 ? "0"+n : ""+n);
   return `${h}:${pad(m)}:${pad(s)}`;
 }
 
 /** 
- * Insert a single new row to the given URL with the rowObj data.
+ * Insert row(s) by POSTing to a Worker endpoint that does :append
+ * body.data -> must be { "values": [ [ ... ] ] }
  */
-async function insertRow(url, rowObj) {
+async function insertRow(url, rowObjArray) {
+  // rowObjArray => array of arrays, e.g. [ ["username","Started",...], ["..."] ]
   const resp = await fetch(url, {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ data:[ rowObj ] })
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ values: rowObjArray })
   });
-  if(!resp.ok) throw new Error(`${resp.status} ${resp.statusText}`);
+  if(!resp.ok){
+    const txt=await resp.text();
+    throw new Error(`${resp.status} ${resp.statusText}\n${txt}`);
+  }
+  // Possibly returns JSON with "updates"
+  const j=await resp.json();
+  return j;
 }
 
 /** 
- * Attempt to find the "Direct Questions To:" contact from the 
- * "Question Associates" tab (QUESTION_ASSOC_URL),
- * matching the "Client:" name as a lookup key.
+ * After user picks "startTask", we display details about the selected row
+ * and also find who "Direct Questions To" by fetching questionAssociates
  */
 async function findDirectQuestion(clientName){
   if(!clientName)return"";
@@ -542,50 +528,44 @@ async function findDirectQuestion(clientName){
     if(!row)return"";
     return row[pIdx] || row[sIdx] || row[bIdx] || "";
   } catch(e){
-    console.error("Error findDirectQuestion =>", e);
+    console.error("Error in findDirectQuestion =>",e);
     return "";
   }
 }
 
 /** 
- * Reset the screen after stopping or logging out:
- * - Hide #statusOptions
- * - Clear #notes and hide it
- * - Clear currentTask, startTime
- * - Clear #taskDetail content
+ * Reset the screen after stopping or logging out
  */
 function resetScreen(){
   document.getElementById("statusOptions").style.display="none";
-  const note=document.getElementById("notes");
-  note.value="";
-  note.style.display="none";
+  const noteEl=document.getElementById("notes");
+  noteEl.value="";
+  noteEl.style.display="none";
   currentTask=null;
   startTime=null;
   document.getElementById("taskDetail").innerHTML="";
 }
 
 /** 
- * Show the #notes area once a radio status is chosen.
+ * Show #notes area once a radio is chosen
  */
 function statusChosen(){
   document.getElementById("notes").style.display="block";
 }
 
+/** 
+ * If user hits Enter in login field => login()
+ */
+function checkEnter(e){
+  if(e.key==="Enter") login();
+}
 
 /* ============================
    AUTH / LOGIN 
    ============================ */
 
 /** 
- * If user hits Enter in the username/password field, call login()
- */
-function checkEnter(e){
-  if(e.key==="Enter") login();
-}
-
-/** 
- * Validate user input, fetch from LASALLE_POD_URL to confirm user exists, 
- * then show #taskScreen if valid.
+ * Validate user, fetch laSallePod
  */
 async function login(){
   setNotification("");
@@ -598,14 +578,13 @@ async function login(){
     setNotification("Username and Password are required.",true);
     return;
   }
-  if(pass !== HARDCODED_PASS){
+  if(pass!==HARDCODED_PASS){
     setNotification("Invalid login credentials.",true);
     return;
   }
-
   const spin=document.getElementById("loginSpinner");
   spin.style.display="block";
-  try {
+  try{
     const r=await fetch(LASALLE_POD_URL);
     const j=await r.json();
     spin.style.display="none";
@@ -623,39 +602,30 @@ async function login(){
       setNotification("Missing columns in 'LaSalle Pod' tab.",true);
       return;
     }
-
-    // find the row with matching "Username"
-    const row = dataRows.find(r => (r[uIdx]||"").trim().toLowerCase()===user);
+    // find row with matching user
+    const row = dataRows.find(row => (row[uIdx]||"").trim().toLowerCase()===user);
     if(!row){
       setNotification("User not found in LaSalle Pod data.",true);
       return;
     }
     const fn=(row[fnIdx]||"").trim();
     const ln=(row[lnIdx]||"").trim();
-    userFullName = fn + " " + ln;
+    userFullName = fn+" "+ln;
 
-    document.getElementById("greeting").textContent="Hello, "+userFullName+"!";
+    document.getElementById("greeting").textContent = "Hello, "+userFullName+"!";
     document.getElementById("loginOverlay").style.display="none";
     document.getElementById("taskScreen").style.display="block";
-  } catch(e){
+  }catch(e){
     spin.style.display="none";
-    if(e instanceof TypeError){
-      setNotification("Network error - check your connection.",true);
-    } else {
-      setNotification("Error => "+e.message,true);
-    }
+    setNotification("Error => "+e.message,true);
   }
 }
-
 
 /* ============================
    START TASK / REFRESH
    ============================ */
 
-/** 
- * Called when user clicks "Start Task" or "Refresh". 
- * Show spinner, fetch ready tasks, etc.
- */
+/** Called when user clicks Start Task */
 function startTaskClicked(){
   setNotification("");
   document.getElementById("startTaskBtn").style.display="none";
@@ -665,32 +635,37 @@ function startTaskClicked(){
 }
 
 /** 
- * Fetch tasks from the BACKEND_URL, parse row data,
- * filter for (Associate=user, Status=Ready).
- * If none => on-call. If found => insert row (status=Started).
+ * Load tasks from /backend, filter Associate===userFullName, Status===Ready
+ * If none => On Call 
+ * If found => we do "Started" row inserts
  */
 async function loadReadyTasks(){
-  try {
+  try{
     const r=await fetch(BACKEND_URL);
-    const data=await r.json();
-    if(!data.values) throw new Error("No values array in 'Backend' data");
-    const headers=data.values[0];
-    const rows=data.values.slice(1);
+    const j=await r.json();
+    document.getElementById("startSpinner").style.display="none";
+    showLoading(false);
 
-    const assocIdx = headers.indexOf("Associate:");
-    const statusIdx= headers.indexOf("Status:");
-    if(assocIdx<0 || statusIdx<0){
-      throw new Error("Missing columns in 'Backend' tab. Must have 'Associate:' and 'Status:' headers.");
+    if(!j.values){
+      setNotification("Backend data missing 'values'.",true);
+      resetScreen();
+      return;
+    }
+    const headers=j.values[0]||[];
+    const dataRows=j.values.slice(1);
+    const assocIdx=headers.indexOf("Associate:");
+    const statusIdx=headers.indexOf("Status:");
+    if(assocIdx<0||statusIdx<0){
+      setNotification("Missing 'Associate:' or 'Status:' columns in Backend tab.",true);
+      resetScreen();
+      return;
     }
 
-    tasks = rows.filter(row=>{
+    tasks=dataRows.filter(row=>{
       const assoc=(row[assocIdx]||"").trim().toLowerCase();
       const stat =(row[statusIdx]||"").trim().toLowerCase();
       return assoc===userFullName.toLowerCase() && stat==="ready";
-    }).map(r=>convertRowToObj(r, headers));
-
-    document.getElementById("startSpinner").style.display="none";
-    showLoading(false);
+    });
 
     if(!tasks.length){
       setNotification("You are on call. No tasks found.");
@@ -699,43 +674,41 @@ async function loadReadyTasks(){
       btn.innerText="Refresh";
       document.getElementById("onCallModal").style.display="block";
       setTimeout(()=>setNotification("Reminder: Please refresh every 5 mins."),300000);
+      resetScreen();
       return;
     }
 
     // We have at least 1 "Ready" task
-    currentTask=tasks[0];
+    // We'll take the first one
+    const rowArr=tasks[0];
+    // Convert that row array => object if you want
+    const taskObj=convertRowToObj(rowArr, headers);
+    currentTask=taskObj;
     document.getElementById("onCallModal").style.display="none";
     document.getElementById("startTaskBtn").style.display="none";
 
+    // Insert a row => "Started" in Task Data + Task History
     const startNow=new Date();
     startTime=startNow;
     const startStr=formatDateTime(startNow);
 
-    // Insert row => "Started" in Backend
-    const newRowObj={
-      ...currentTask,
-      "Status:":"Started",
-      "Time:":"Start: "+startStr
-    };
-    await insertRow(BACKEND_URL, newRowObj);
+    // We'll create a row array with the columns we want:
+    // Example columns: [ "Associate:", "Status:", "Start Time:", "Stop Time:", "Cumulative Time:", "Associate Notes:" ]
+    // Adjust as needed
+    const rowForBackend=[
+      [ userFullName, "Started", "Start: "+startStr ]
+    ];
+    await insertRow(BACKEND_URL, rowForBackend);
 
-    // Insert row => "Started" in Task Data & Task History
-    const rowObj2 = {
-      ...currentTask,
-      "Status:":"Started",
-      "Start Time:":startStr,
-      "Stop Time":"",
-      "Cumulative Time":"",
-      "Associate Notes":"",
-      "Update":"FALSE"
-    };
-    await insertRow(TASK_DATA_URL, rowObj2);
-    await insertRow(TASK_HISTORY_URL, rowObj2);
+    const rowForTaskDataHistory=[
+      [ userFullName, "Started", startStr, "", "", "" ]
+    ];
+    await insertRow(TASK_DATA_URL,    rowForTaskDataHistory);
+    await insertRow(TASK_HISTORY_URL, rowForTaskDataHistory);
 
-    // Show details
-    displayTaskDetails(currentTask);
+    // Now show the details
+    await displayTaskDetails(currentTask);
     document.getElementById("statusOptions").style.display="block";
-
   }catch(e){
     showLoading(false);
     document.getElementById("startSpinner").style.display="none";
@@ -745,42 +718,39 @@ async function loadReadyTasks(){
 }
 
 /** 
- * Convert row array => object using the given headers
+ * Convert a row array -> object (header->value),
+ * if you want to show them more easily
  */
 function convertRowToObj(rowArr, headers){
   const obj={};
-  headers.forEach((hdr, idx)=>{
-    obj[hdr]=rowArr[idx]||"";
+  headers.forEach((hdr,i)=>{
+    obj[hdr]=rowArr[i]||"";
   });
   return obj;
 }
 
 /** 
- * Display the details (client, param1, param2, etc.) in a 2-col grid.
+ * Show the details (like parameter1, param2, etc.) in a grid
  */
 async function displayTaskDetails(task){
   if(!task){
     document.getElementById("taskDetail").innerHTML="<p>No tasks to display.</p>";
     return;
   }
-  const clientName=(task["Client:"]||"").trim();
-  const qAssoc=await findDirectQuestion(clientName);
-
+  const qAssoc=await findDirectQuestion(task["Client:"]||"");
   const html=`
-    <div class="details-grid">
-      <div><b>Client:</b> ${(task["Client:"]||"")}</div>
-      <div><b>Parameter 1:</b> ${(task["Parameter 1:"]||"")}</div>
-      <div><b>Task:</b> ${(task["Task:"]||"")}</div>
-      <div><b>Parameter 2:</b> ${(task["Parameter 2:"]||"")}</div>
-      <div><b>Deliverable Name:</b> ${(task["Deliverable Name:"]||"")}</div>
-      <div><b>Production Notes:</b> ${(task["Production Notes:"]||"")}</div>
-      <div><b>Direct Questions To:</b> ${qAssoc||""}</div>
-      <div><b>Due Time:</b> ${(task["Due Time:"]||"")}</div>
-    </div>
-  `;
+  <div class="details-grid">
+    <div><b>Client:</b> ${(task["Client:"]||"")}</div>
+    <div><b>Parameter 1:</b> ${(task["Parameter 1:"]||"")}</div>
+    <div><b>Task:</b> ${(task["Task:"]||"")}</div>
+    <div><b>Parameter 2:</b> ${(task["Parameter 2:"]||"")}</div>
+    <div><b>Deliverable Name:</b> ${(task["Deliverable Name:"]||"")}</div>
+    <div><b>Production Notes:</b> ${(task["Production Notes:"]||"")}</div>
+    <div><b>Direct Questions To:</b> ${qAssoc||""}</div>
+    <div><b>Due Time:</b> ${(task["Due Time:"]||"")}</div>
+  </div>`;
   document.getElementById("taskDetail").innerHTML=html;
 }
-
 
 /* ============================
    STOP TASK
@@ -796,7 +766,6 @@ async function stopTask(){
     endStopSpinner();
     return;
   }
-
   // Which status radio?
   let chosen="";
   const rads=document.getElementsByName("stopStatus");
@@ -811,12 +780,11 @@ async function stopTask(){
     endStopSpinner();
     return;
   }
-  // If "In Progress" or "Issue", notes are required
-  const noteEl=document.getElementById("notes");
-  const noteVal=noteEl.value.trim();
+  // If "In Progress" or "Issue", notes required
+  const noteVal=document.getElementById("notes").value.trim();
   const requiresNote=(chosen==="In Progress"||chosen==="Issue");
-  highlightInput("notes",requiresNote&&!noteVal);
-  if(requiresNote&&!noteVal){
+  highlightInput("notes", requiresNote && !noteVal);
+  if(requiresNote && !noteVal){
     setNotification(`Notes are required for status: ${chosen}`,true);
     endStopSpinner();
     return;
@@ -826,32 +794,25 @@ async function stopTask(){
     const stopNow=new Date();
     const stopStr=formatDateTime(stopNow);
     const combined=`Start: ${formatDateTime(startTime)||"?"} | Stop: ${stopStr}`;
+    const cTime=computeCumulativeTime(startTime, stopNow);
 
-    // Insert row => "Stopped" in Backend
-    const newRowObj={
-      ...currentTask,
-      "Status:": chosen,
-      "Time:": combined
-    };
-    await insertRow(BACKEND_URL, newRowObj);
+    // Insert row => "Stopped" in each tab
+    // e.g. columns: [ user, status, "Start Time:", "Stop Time:", "Cumulative Time:", "Associate Notes" ]
+    // Adjust as needed
+    const rowForBackend=[
+      [ userFullName, chosen, combined ]
+    ];
+    await insertRow(BACKEND_URL, rowForBackend);
 
-    // Insert row => "Stopped" in Task Data + Task History
-    const cTime=(startTime&&stopNow)?computeCumulativeTime(startTime,stopNow):"";
-    const rowObj2={
-      ...currentTask,
-      "Status:": chosen,
-      "Start Time:": formatDateTime(startTime)||"",
-      "Stop Time:": stopStr,
-      "Cumulative Time:": cTime,
-      "Associate Notes:": noteVal,
-      "Update":"FALSE"
-    };
-    await insertRow(TASK_DATA_URL, rowObj2);
-    await insertRow(TASK_HISTORY_URL, rowObj2);
+    const rowForTaskDataHistory=[
+      [ userFullName, chosen, formatDateTime(startTime)||"", stopStr, cTime, noteVal ]
+    ];
+    await insertRow(TASK_DATA_URL,    rowForTaskDataHistory);
+    await insertRow(TASK_HISTORY_URL, rowForTaskDataHistory);
 
-  } catch(e){
+  }catch(e){
     setNotification("Error stopping task => "+e.message,true);
-  } finally {
+  }finally{
     resetScreen();
     endStopSpinner();
     document.getElementById("startTaskBtn").style.display="inline-block";
@@ -865,14 +826,17 @@ function endStopSpinner(){
   showLoading(false);
 }
 
-
 /* ============================
    ON CALL / LOGOUT
    ============================ */
+
+/** Called if user closes the On Call modal */
 function closeOnCall(){
   document.getElementById("onCallModal").style.display="none";
+  resetScreen();
 }
 
+/** Log out => reset screen, show login overlay */
 function logout(){
   setNotification("");
   resetScreen();
