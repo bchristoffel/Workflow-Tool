@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>AutonomyWorks Workflow (Read from Backend Only)</title>
+  <title>AutonomyWorks Workflow (Columns Matched)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* 
@@ -81,7 +81,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 1000; 
+      z-index: 1000;
     }
     .login-container {
       background: rgba(255,255,255,0.94);
@@ -157,8 +157,8 @@
       ------------------------------------------------
     */
     #taskScreen {
-      display: none; 
-      width: 100%; 
+      display: none;
+      width: 100%;
       height: 100%;
       background-color: #f0f0f0;
       padding: 20px;
@@ -314,7 +314,7 @@
 </head>
 <body>
 
-<!-- LOADING OVERLAY (spinner) -->
+<!-- LOADING OVERLAY -->
 <div id="loadingOverlay">
   <div class="loadingContent">
     <div class="bigSpinner"></div>
@@ -353,7 +353,7 @@
   <!-- Task details area -->
   <div id="taskDetail" style="margin-top:20px;"></div>
 
-  <!-- STOP TASK container: statuses + notes + button -->
+  <!-- STOP TASK container -->
   <div id="statusOptions">
     <div class="status-container">
       <label>
@@ -402,15 +402,35 @@
   ============================
   CONFIG / GLOBALS
   ============================
-  We'll only do GET from /backend to find "Ready" tasks.
-  We do NOT POST to /backend, so no "Not Found (POST)" errors.
+  We'll read tasks from /backend (GET) and log new rows to:
+    - /taskData
+    - /taskHistory
 
-  We still POST new rows to /taskData and /taskHistory 
-  to log start/stop times, cumulative time, notes, etc.
+  The columns for BOTH Task Data & Task History are:
+    1)  Update:
+    2)  Start Time:
+    3)  Stop Time:
+    4)  Priority:
+    5)  Associate:
+    6)  Status:
+    7)  Client:
+    8)  Task:
+    9)  Deliverable Name:
+    10) Deliverable ID:
+    11) Parameter 1:
+    12) Parameter 2:
+    13) Production Notes:
+    14) Due Time:
+    15) Due Date:
+    16) Associate Notes:
+    17) Job Code:
+    18) Cumulative Time:
+
+  We'll fill each index carefully so the data goes to correct columns.
 */
-const BACKEND_URL        = "https://my-api.bchristoffel02.workers.dev/backend";   // GET only
-const TASK_DATA_URL      = "https://my-api.bchristoffel02.workers.dev/taskData";  // POST logs
-const TASK_HISTORY_URL   = "https://my-api.bchristoffel02.workers.dev/taskHistory";// POST logs
+const BACKEND_URL        = "https://my-api.bchristoffel02.workers.dev/backend";   // read only
+const TASK_DATA_URL      = "https://my-api.bchristoffel02.workers.dev/taskData";  // post
+const TASK_HISTORY_URL   = "https://my-api.bchristoffel02.workers.dev/taskHistory";
 const LASALLE_POD_URL    = "https://my-api.bchristoffel02.workers.dev/lasallePod";
 const QUESTION_ASSOC_URL = "https://my-api.bchristoffel02.workers.dev/questionAssociates";
 
@@ -442,17 +462,17 @@ function setNotification(msg, isError=false) {
 function highlightInput(id, shouldHighlight){
   const el=document.getElementById(id);
   if(!el)return;
-  if(shouldHighlight)el.classList.add("input-error");
+  if(shouldHighlight) el.classList.add("input-error");
   else el.classList.remove("input-error");
 }
 
 function showLoading(show) {
-  document.getElementById("loadingOverlay").style.display=show?"flex":"none";
+  document.getElementById("loadingOverlay").style.display= show?"flex":"none";
 }
 
 function formatDateTime(d){
   if(!(d instanceof Date))return"";
-  const pad=n=>(n<10?"0"+n:""+n);
+  const pad=n=>(n<10?"0"+n:n);
   const mm=pad(d.getMonth()+1), dd=pad(d.getDate()), yy=d.getFullYear();
   const hh=pad(d.getHours()), mn=pad(d.getMinutes()), sc=pad(d.getSeconds());
   return `${mm}/${dd}/${yy} ${hh}:${mn}:${sc}`;
@@ -466,24 +486,28 @@ function computeCumulativeTime(st,sp){
   return `${h}:${pad(m)}:${pad(s)}`;
 }
 
-/** Insert row(s) to /taskData or /taskHistory */
+/**
+ * Insert row(s) to Task Data or Task History. 
+ * We'll pass an array-of-arrays that lines up with the 18 columns.
+ */
 async function insertRow(url, rowArr){
-  const r=await fetch(url, {
+  // rowArr => e.g. [ [col1, col2, ..., col18], ... ]
+  const resp=await fetch(url, {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({ values: rowArr })
   });
-  if(!r.ok){
-    const txt=await r.text();
-    throw new Error(`${r.status} ${r.statusText}\n${txt}`);
+  if(!resp.ok){
+    const txt=await resp.text();
+    throw new Error(`${resp.status} ${resp.statusText}\n${txt}`);
   }
-  return await r.json();
+  return await resp.json();
 }
 
-/** fetch questionAssociates => j.values => parse for direct question */
+/** For questionAssociates => direct questions */
 async function findDirectQuestion(clientName){
   if(!clientName)return"";
-  try{
+  try {
     const r=await fetch(QUESTION_ASSOC_URL);
     const j=await r.json();
     if(!j.values||!Array.isArray(j.values))return"";
@@ -518,7 +542,7 @@ function statusChosen(){
 }
 
 function checkEnter(e){
-  if(e.key==="Enter")login();
+  if(e.key==="Enter") login();
 }
 
 /* ============================
@@ -528,8 +552,8 @@ async function login(){
   setNotification("");
   const user=document.getElementById("username").value.trim().toLowerCase();
   const pass=document.getElementById("password").value.trim();
-  highlightInput("username", !user);
-  highlightInput("password", !pass);
+  highlightInput("username",!user);
+  highlightInput("password",!pass);
 
   if(!user||!pass){
     setNotification("Username and Password are required.",true);
@@ -542,8 +566,8 @@ async function login(){
   const spin=document.getElementById("loginSpinner");
   spin.style.display="block";
   try{
-    const resp=await fetch(LASALLE_POD_URL);
-    const j=await resp.json();
+    const r=await fetch(LASALLE_POD_URL);
+    const j=await r.json();
     spin.style.display="none";
 
     if(!j.values||!Array.isArray(j.values)){
@@ -559,8 +583,6 @@ async function login(){
       setNotification("Missing columns in 'LaSalle Pod' tab.",true);
       return;
     }
-
-    // find the row with matching user
     const row=dataRows.find(rr=>(rr[uIdx]||"").trim().toLowerCase()===user);
     if(!row){
       setNotification("User not found in LaSalle Pod data.",true);
@@ -592,8 +614,8 @@ function startTaskClicked(){
 
 async function loadReadyTasks(){
   try{
-    const resp=await fetch(BACKEND_URL);
-    const j=await resp.json();
+    const r=await fetch(BACKEND_URL);
+    const j=await r.json();
     document.getElementById("startSpinner").style.display="none";
     showLoading(false);
 
@@ -612,6 +634,7 @@ async function loadReadyTasks(){
       return;
     }
 
+    // Filter tasks => Associate===userFullName, Status===ready
     tasks=dataRows.filter(row=>{
       const assoc=(row[assocIdx]||"").trim().toLowerCase();
       const stat =(row[statusIdx]||"").trim().toLowerCase();
@@ -629,26 +652,52 @@ async function loadReadyTasks(){
       return;
     }
 
-    // We have at least 1 "Ready" task, so let's pick the first
+    // We have at least 1 "Ready" task
     const rowArr=tasks[0];
     const taskObj=convertRowToObj(rowArr, headers);
     currentTask=taskObj;
     document.getElementById("onCallModal").style.display="none";
     document.getElementById("startTaskBtn").style.display="none";
 
-    // Insert row => "Started" only in Task Data + Task History
+    // Insert row => "Started" in Task Data + Task History
     const startNow=new Date();
     startTime=startNow;
     const startStr=formatDateTime(startNow);
 
-    // Example columns: [ "Associate:", "Status", "Start Time:", "Stop Time:", "Cumulative Time:", "Notes" ]
-    const rowToInsert=[
-      [ userFullName, "Started", startStr, "", "", "" ]
-    ];
-    await insertRow(TASK_DATA_URL, rowToInsert);
-    await insertRow(TASK_HISTORY_URL, rowToInsert);
+    // 18 columns (in order):
+    // 0-Update:, 1-Start Time:, 2-Stop Time:, 3-Priority:, 4-Associate:, 
+    // 5-Status:, 6-Client:, 7-Task:, 8-Deliverable Name:, 9-Deliverable ID:, 
+    // 10-Parameter 1:, 11-Parameter 2:, 12-Production Notes:, 13-Due Time:, 
+    // 14-Due Date:, 15-Associate Notes:, 16-Job Code:, 17-Cumulative Time:
 
-    await displayTaskDetails(currentTask);
+    // We'll fill them. For start, "Stop Time:" => "", "Cumulative Time:" => "", etc.
+    // If you want priority or job code, adapt as needed. Otherwise, put "" or some default.
+
+    const row = [
+      "FALSE",               // 0) Update: 
+      startStr,             // 1) Start Time:
+      "",                   // 2) Stop Time:
+      "",                   // 3) Priority:
+      userFullName,         // 4) Associate:
+      "Started",            // 5) Status:
+      taskObj["Client:"],   // 6) Client:
+      taskObj["Task:"],     // 7) Task:
+      taskObj["Deliverable Name:"],  // 8
+      taskObj["Deliverable ID:"],    // 9
+      taskObj["Parameter 1:"],       // 10
+      taskObj["Parameter 2:"],       // 11
+      taskObj["Production Notes:"],  // 12
+      taskObj["Due Time:"],          // 13
+      taskObj["Due Date:"],          // 14
+      "",                   // 15) Associate Notes:
+      taskObj["Job Code:"], // 16) Job Code:
+      ""                    // 17) Cumulative Time:
+    ];
+
+    await insertRow(TASK_DATA_URL,    [row]);
+    await insertRow(TASK_HISTORY_URL, [row]);
+
+    displayTaskDetails(taskObj);
     document.getElementById("statusOptions").style.display="block";
   }catch(e){
     showLoading(false);
@@ -661,7 +710,7 @@ async function loadReadyTasks(){
 function convertRowToObj(rowArr, headers){
   const obj={};
   headers.forEach((hdr,i)=>{
-    obj[hdr]=rowArr[i]||"";
+    obj[hdr] = rowArr[i]||"";
   });
   return obj;
 }
@@ -728,12 +777,34 @@ async function stopTask(){
     const stopNow=new Date();
     const stopStr=formatDateTime(stopNow);
     const cTime=computeCumulativeTime(startTime, stopNow);
-    // Insert row => "Stopped" in Task Data + Task History
-    const rowArr=[
-      [ userFullName, chosen, formatDateTime(startTime)||"", stopStr, cTime, noteVal ]
+
+    // 18 columns => same order as for "start"
+    // We'll fill Start Time with the old startTime, Stop Time with now
+    // Associate Notes => noteVal, Status => chosen, etc.
+
+    const row = [
+      "FALSE",                    // 0) Update:
+      formatDateTime(startTime), // 1) Start Time:
+      stopStr,                   // 2) Stop Time:
+      "",                        // 3) Priority:
+      userFullName,              // 4) Associate:
+      chosen,                    // 5) Status:
+      currentTask["Client:"],    // 6) Client:
+      currentTask["Task:"],      // 7) Task:
+      currentTask["Deliverable Name:"], // 8
+      currentTask["Deliverable ID:"],   // 9
+      currentTask["Parameter 1:"],      //10
+      currentTask["Parameter 2:"],      //11
+      currentTask["Production Notes:"], //12
+      currentTask["Due Time:"],         //13
+      currentTask["Due Date:"],         //14
+      noteVal,                  // 15) Associate Notes:
+      currentTask["Job Code:"], // 16) Job Code:
+      cTime                     // 17) Cumulative Time:
     ];
-    await insertRow(TASK_DATA_URL, rowArr);
-    await insertRow(TASK_HISTORY_URL, rowArr);
+
+    await insertRow(TASK_DATA_URL,    [row]);
+    await insertRow(TASK_HISTORY_URL, [row]);
 
   }catch(e){
     setNotification("Error stopping task => "+e.message,true);
