@@ -2,360 +2,192 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>AutonomyWorks Workflow - Full Final Version</title>
+  <title>AutonomyWorks Workflow - Final</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- 
-       ---------------------------------------------------------------------------
-       This single-file front-end HTML merges all requested features:
-         1) Hardcoded login with "abc123"
-         2) 18-column insertion for Task Data/History
-         3) Partial updates to "Backend" columns:
-             B => Start Time
-             C => Stop Time
-             F => Status
-             P => Associate Notes
-         4) On Call modal, loading overlay, unselecting radios, etc.
-         5) Centered greeting, center #notes box
-         6) ~800 lines of code for clarity
-       ---------------------------------------------------------------------------
-  -->
-
   <style>
-/*********************************************************************
- * GLOBAL & RESET
- *********************************************************************/
+/* 
+  GLOBAL STYLES 
+*/
 * {
   box-sizing: border-box;
-  /* ensures that width/height calculations consider padding/border */
 }
-
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
   font-family: 'Segoe UI', sans-serif;
-  /* The UI font requested */
 }
 
-/*********************************************************************
- * LOADING OVERLAY
- *********************************************************************/
-
+/* 
+  LOADING OVERLAY 
+*/
 #loadingOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: none; /* toggled in code with showLoading(true/false) */
-  align-items: center;
-  justify-content: center;
+  position: fixed; top:0; left:0;
+  width:100%; height:100%;
+  display:none; align-items:center; justify-content:center;
   background-color: rgba(0,0,0,0.4);
-  z-index: 9999; /* on top of everything else */
+  z-index:9999;
 }
-
 #loadingOverlay .loadingContent {
-  background: white;
-  padding: 30px 50px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 18px;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background:white; padding:30px 50px; border-radius:8px;
+  text-align:center; font-size:18px; color:#333;
+  display:flex; flex-direction:column; align-items:center;
 }
-
 .bigSpinner {
-  width: 40px;
-  height: 40px;
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #333;
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
-  margin-bottom: 15px;
+  width:40px; height:40px;
+  border:5px solid #f3f3f3; border-top:5px solid #333; border-radius:50%;
+  animation: spin 0.9s linear infinite; margin-bottom:15px;
 }
 @keyframes spin {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/*********************************************************************
- * LOGIN OVERLAY
- *********************************************************************/
+/* 
+  LOGIN OVERLAY 
+*/
 #loginOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
-  /* background gradient + image, covering everything */
+  position:absolute; top:0; left:0;
+  width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
   background:
     radial-gradient(ellipse at center, rgba(20,30,60,0.15) 0%, rgba(20,40,70,0.8) 70%, rgba(20,40,70,1) 100%),
     url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1350&q=80')
       no-repeat center center fixed;
-  background-size: cover;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  background-size:cover; 
+  z-index:1000;
 }
 .login-container {
-  background: rgba(255,255,255,0.94);
-  width: 360px;
-  padding: 30px;
-  border-radius: 14px;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.25);
-  text-align: center;
+  background:rgba(255,255,255,0.94);
+  width:360px; padding:30px;
+  border-radius:14px; box-shadow:0 10px 28px rgba(0,0,0,0.25);
+  text-align:center;
 }
-
 .login-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: #0d3b66;
-  margin-bottom: 24px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; color:#0d3b66; margin-bottom:24px;
 }
-
 input, button {
-  width: 100%;
-  padding: 10px;
-  border-radius: 4px;
-  margin-top: 10px;
-  font-size: 15px;
-  font-family: 'Segoe UI', sans-serif;
+  width:100%; padding:10px; border-radius:4px; margin-top:10px;
+  font-size:15px;
 }
-
 input {
-  border: 1px solid #ccc;
-  transition: border 0.2s;
+  border:1px solid #ccc; transition:border 0.2s;
 }
-
 .input-error {
-  border-color: red !important;
+  border-color:red!important;
 }
-
 button {
-  border: none;
-  background: #b2ebf2;
-  color: #00332d;
-  font-weight: 600;
-  cursor: pointer;
+  border:none; background:#b2ebf2; color:#00332d; font-weight:600; cursor:pointer;
 }
 button:hover {
-  background: #9adee6;
+  background:#9adee6;
 }
-
 #loginSpinner {
-  display: none;
-  text-align: center;
-  margin-top: 20px;
+  display:none; text-align:center; margin-top:20px;
 }
-
 #loginSpinner .dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin: 3px;
-  background-color: #333;
-  border-radius: 50%;
+  display:inline-block; width:8px; height:8px; margin:3px; background-color:#333; border-radius:50%;
   animation: wave 1.2s infinite ease-in-out;
 }
-#loginSpinner .dot:nth-child(1) { animation-delay: 0s;   }
-#loginSpinner .dot:nth-child(2) { animation-delay: 0.12s;}
-#loginSpinner .dot:nth-child(3) { animation-delay: 0.24s;}
-
+#loginSpinner .dot:nth-child(1){ animation-delay:0s;   }
+#loginSpinner .dot:nth-child(2){ animation-delay:0.12s;}
+#loginSpinner .dot:nth-child(3){ animation-delay:0.24s;}
 @keyframes wave {
-  0%, 60%, 100% { transform:translateY(0);}
-  30% { transform:translateY(-8px);}
+  0%,60%,100%{ transform:translateY(0);}
+  30%{ transform:translateY(-8px);}
 }
 
-/*********************************************************************
- * MAIN TASK SCREEN
- *********************************************************************/
+/* 
+  MAIN TASK SCREEN 
+*/
 #taskScreen {
-  display: none; 
-  width: 100%; 
-  height: 100%;
-  background-color: #f0f0f0;
-  padding: 20px;
-  position: relative;
-  overflow: auto;
-  z-index: 1;
+  display:none; width:100%; height:100%;
+  background-color:#f0f0f0; padding:20px;
+  position:relative; overflow:auto; z-index:1;
 }
 #notificationBar {
-  display: none;
-  width: 100%;
-  text-align: center;
-  font-weight: 600;
-  padding: 8px 0;
-  margin-bottom: 10px;
-  /* We'll set color in code if needed */
+  display:none; width:100%; text-align:center; font-weight:600; padding:8px 0; margin-bottom:10px;
 }
-
-#greeting {
-  text-align: center;
-  margin: 0 auto 20px;
-  font-size: 22px;
-  color: #1d3330;
-}
-
-/*********************************************************************
- * START TASK button
- *********************************************************************/
-#startTaskBtn {
-  width: 240px;
-  height: 45px;
-  font-size: 16px;
-  display: inline-block;
-  margin: 0 auto; /* doesn't center if not in a block container, but we handle it anyway */
-  /* We'll place greeting + start in a container below if needed */
-}
-
-/*********************************************************************
- * Center Container for Greeting + Start Task
- *********************************************************************/
 #centerContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 20px auto;
+  display:flex; flex-direction:column; align-items:center;
+  margin:20px auto;
+}
+#greeting {
+  margin:0 0 20px; font-size:22px; color:#1d3330;
+}
+#startTaskBtn {
+  width:240px; height:45px; font-size:16px;
 }
 
-/*********************************************************************
- * Task details area (2 columns, responsive)
- *********************************************************************/
+/* 
+  TASK DETAILS 
+*/
 .details-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  max-width: 800px;
-  margin: 0 auto;
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  max-width:800px; margin:0 auto; background:#fff; padding:20px; border-radius:8px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.1);
 }
-@media (max-width: 600px) {
-  .details-grid {
-    grid-template-columns: 1fr;
-  }
+@media (max-width:600px){
+  .details-grid { grid-template-columns:1fr; }
 }
 
-/*********************************************************************
- * STOP TASK container: statuses + notes + button
- *********************************************************************/
+/* 
+  STOP TASK 
+*/
 #statusOptions {
-  display: none;
-  margin: 20px auto;
-  max-width: 800px;
-  text-align: center;
+  display:none; margin:20px auto; max-width:800px; text-align:center;
 }
-
 .status-container {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
+  display:flex; justify-content:center; gap:20px; margin-top:20px;
 }
-
 #notes {
-  display: none;
-  width: 80%;
-  margin: 0 auto; /* center horizontally */
-  height: 50px;
-  margin-top: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 8px;
-  font-size: 14px;
-  font-family: 'Segoe UI', sans-serif;
-  transition: border 0.2s;
+  display:none; width:80%; margin:0 auto; height:50px; margin-top:8px;
+  border:1px solid #ccc; border-radius:4px; padding:8px; font-size:14px;
 }
-
 .stop-task-container {
-  margin-top: 20px;
+  margin-top:20px;
 }
-
 .stop-btn {
-  width: 150px;
-  height: 40px;
-  font-size: 15px;
-  font-weight: 600;
-  background: #b2ebf2;
-  color: #00332d;
-  cursor: pointer;
-  border: none;
-  border-radius: 4px;
+  width:150px; height:40px; font-size:15px; font-weight:600; background:#b2ebf2; color:#00332d;
+  cursor:pointer; border:none; border-radius:4px;
 }
 .stop-btn:hover {
-  background: #9adee6;
+  background:#9adee6;
 }
-
 #stopSpinner {
-  display: none;
-  margin: 10px auto;
-  width: 30px;
-  height: 30px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #333;
-  border-radius: 50%;
+  display:none; margin:10px auto; width:30px; height:30px; border:4px solid #f3f3f3; border-top:4px solid #333; border-radius:50%;
   animation: spin 0.8s linear infinite;
 }
 
-/*********************************************************************
- * ON CALL MODAL
- *********************************************************************/
+/* 
+  ON CALL MODAL 
+*/
 #onCallModal {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 20px;
-  border-radius: 14px;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.25);
-  text-align: center;
-  width: 600px;
-  max-width: 90vw;
-  font-family: 'Segoe UI', sans-serif;
-  z-index: 2000;
+  display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:white; padding:20px; border-radius:14px; box-shadow:0 10px 28px rgba(0,0,0,0.25);
+  text-align:center; width:600px; max-width:90vw; font-family:'Segoe UI',sans-serif; z-index:2000;
 }
 iframe {
-  width: 100%;
-  height: 400px;
-  border: none;
+  width:100%; height:400px; border:none;
 }
 
-/*********************************************************************
- * LOGOUT link (bottom, centered)
- *********************************************************************/
+/* 
+  LOGOUT LINK 
+*/
 .logout-link {
-  position: fixed;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #00332d;
-  text-decoration: underline;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  background: #f0f0f0;
-  padding: 5px 10px;
-  border-radius: 4px;
+  position:fixed; bottom:10px; left:50%; transform:translateX(-50%);
+  color:#00332d; text-decoration:underline; cursor:pointer; font-weight:600; font-size:14px;
+  background:#f0f0f0; padding:5px 10px; border-radius:4px;
 }
 .logout-link:hover {
-  color: #00796b;
+  color:#00796b;
 }
 
-/*********************************************************************
- * END OF CSS
- *********************************************************************/
+@keyframes spin {
+  0%   { transform:rotate(0deg); }
+  100% { transform:rotate(360deg); }
+}
   </style>
 </head>
 
@@ -390,16 +222,13 @@ iframe {
 <div id="taskScreen">
   <div id="notificationBar"></div>
 
-  <!-- Container for Greeting + Start Task, centered -->
   <div id="centerContainer">
     <h2 id="greeting"></h2>
     <button id="startTaskBtn" onclick="startTaskClicked()">Start Task</button>
   </div>
 
-  <!-- Task details area -->
   <div id="taskDetail" style="margin-top:20px;"></div>
 
-  <!-- STOP TASK container -->
   <div id="statusOptions">
     <div class="status-container">
       <label>
@@ -415,12 +244,7 @@ iframe {
         Completed
       </label>
     </div>
-
-    <textarea
-      id="notes"
-      placeholder="Associate Notes">
-    </textarea>
-
+    <textarea id="notes" placeholder="Associate Notes"></textarea>
     <div class="stop-task-container">
       <button class="stop-btn" onclick="stopTask()">Stop Task</button>
       <div id="stopSpinner"></div>
@@ -433,8 +257,8 @@ iframe {
 <!-- ON CALL MODAL -->
 <div id="onCallModal">
   <h3>
-    On Call: Please refresh every five minutes. 
-    If you are still On Call after 15 minutes, please reach out to your Lead.
+    On Call: Please refresh every five minutes. If you are still On Call after 15 minutes,
+    please reach out to your Lead.
   </h3>
   <iframe src="https://chromedino.com/" allowfullscreen></iframe>
   <p style="line-height:1.4;">
@@ -444,91 +268,41 @@ iframe {
 </div>
 
 <script>
-/******************************************************************************
- * 
- * FULL FRONT-END SCRIPT
- * ~ 800 lines total.
- * 
- * This script merges all updates:
- *  - Hardcoded password: "abc123"
- *  - 18-column insertion into Task Data & Task History
- *  - Partial updates to "Backend" columns:
- *      B => Start Time
- *      C => Stop Time
- *      F => Status
- *      P => Associate Notes
- *  - On Call modal, loading overlay, unselecting stop-task radios, etc.
- *  - Additional comments for clarity and thoroughness.
- * 
+/*****************************************************************************
+ * FRONT-END CONFIG / GLOBALS
  *****************************************************************************/
 
-/******************************************************************************
- * 1) CONFIG / GLOBALS
- ******************************************************************************
- * We'll define constants for your Worker domain. 
- * We'll also define the 18 columns we post to Task Data and Task History.
- *****************************************************************************/
+const BASE_URL              = "https://my-api.bchristoffel02.workers.dev";
+const BACKEND_URL           = BASE_URL + "/backend";
+const TASK_DATA_URL         = BASE_URL + "/taskData";
+const TASK_HISTORY_URL      = BASE_URL + "/taskHistory";
+const LASALLE_POD_URL       = BASE_URL + "/lasallePod";
+const QUESTION_ASSOC_URL    = BASE_URL + "/questionAssociates";
+const UPDATE_BACKEND_CELL_URL = BASE_URL + "/updateBackendCell";
 
-const WORKER_DOMAIN = "https://my-api.bchristoffel02.workers.dev";  // your domain
-// partial update route => "Backend!ColumnLetter{rowNumber}"
-const UPDATE_BACKEND_CELL_URL = WORKER_DOMAIN + "/updateBackendCell";
-const BACKEND_URL        = WORKER_DOMAIN + "/backend";
-const TASK_DATA_URL      = WORKER_DOMAIN + "/taskData";
-const TASK_HISTORY_URL   = WORKER_DOMAIN + "/taskHistory";
-const LASALLE_POD_URL    = WORKER_DOMAIN + "/lasallePod";
-const QUESTION_ASSOC_URL = WORKER_DOMAIN + "/questionAssociates";
-
-// Hardcoded password for demonstration
+// Hardcoded password
 const HARDCODED_PASS = "abc123";
 
-// For partial updates, "Backend" columns:
-const COL_START_TIME = "B"; // Start Time => Column B
-const COL_STOP_TIME  = "C"; // Stop Time => Column C
-const COL_STATUS     = "F"; // Status => Column F
-const COL_NOTES      = "P"; // Associate Notes => Column P
+// "Backend" columns we partially update
+const COL_START_TIME = "B"; // Start Time
+const COL_STOP_TIME  = "C"; // Stop Time
+const COL_STATUS     = "F"; // Status
+const COL_NOTES      = "P"; // Associate Notes
 
-// We'll store the rowNumber from the "Backend" so we can do partial updates
 let userFullName     = "";
 let currentTask      = null;
-let startTime        = null; // Date object
-let currentRowNumber = null; // integer row (2-based index in the sheet, row 1 is headers)
+let startTime        = null;
+let currentRowNumber = null;
 
 
-// For the 18 columns in Task Data/History, we have indexes like this:
-// 0 => Update:
-// 1 => Start Time:
-// 2 => Stop Time:
-// 3 => Priority:
-// 4 => Associate:
-// 5 => Status:
-// 6 => Client:
-// 7 => Task:
-// 8 => Deliverable Name:
-// 9 => Deliverable ID:
-// 10 => Parameter 1:
-// 11 => Parameter 2:
-// 12 => Production Notes:
-// 13 => Due Time:
-// 14 => Due Date:
-// 15 => Associate Notes:
-// 16 => Job Code:
-// 17 => Cumulative Time:
-
-
-/******************************************************************************
- * 2) HELPER / UTILITY
- ******************************************************************************
- * We'll define some helper functions for showing loading overlays,
- * partial updates, etc.
+/*****************************************************************************
+ * HELPER / UTILITY
  *****************************************************************************/
 
-/** 
- * Show/hide #notificationBar with optional error styling 
- */
-function setNotification(msg, isError=false) {
-  const bar = document.getElementById("notificationBar");
-  if(!msg) {
-    bar.style.display = "none";
+function setNotification(msg, isError=false){
+  const bar=document.getElementById("notificationBar");
+  if(!msg){
+    bar.style.display="none";
     bar.innerText="";
     return;
   }
@@ -537,24 +311,15 @@ function setNotification(msg, isError=false) {
   bar.innerText=msg;
 }
 
-/** 
- * If user hits Enter in the login fields => login 
- */
-function checkEnter(e) {
+function checkEnter(e){
   if(e.key==="Enter") login();
 }
 
-/** 
- * Show or hide the big #loadingOverlay
- */
-function showLoading(show) {
-  document.getElementById("loadingOverlay").style.display = show?"flex":"none";
+function showLoading(show){
+  document.getElementById("loadingOverlay").style.display= show?"flex":"none";
 }
 
-/** 
- * Format Date => "MM/DD/YYYY HH:MM:SS" 
- */
-function formatDateTime(d) {
+function formatDateTime(d){
   if(!(d instanceof Date))return"";
   const pad=n=>(n<10?"0"+n:""+n);
   const mm=pad(d.getMonth()+1), dd=pad(d.getDate()), yy=d.getFullYear();
@@ -562,10 +327,7 @@ function formatDateTime(d) {
   return `${mm}/${dd}/${yy} ${hh}:${mn}:${sc}`;
 }
 
-/** 
- * Return "H:MM:SS" difference between two Date objects
- */
-function computeCumulativeTime(st, sp){
+function computeCumulativeTime(st,sp){
   if(!st||!sp)return"";
   const diff=sp-st, sec=Math.floor(diff/1000);
   const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
@@ -573,15 +335,11 @@ function computeCumulativeTime(st, sp){
   return `${h}:${pad(m)}:${pad(s)}`;
 }
 
-/** 
- * Insert row(s) into "Task Data" or "Task History" 
- * We do a POST with { values: [ [ ... ] ] }
- */
 async function insertRow(url, rowArr){
-  const resp = await fetch(url, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ values: rowArr })
+  const resp=await fetch(url, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ values: rowArr })
   });
   if(!resp.ok){
     const txt=await resp.text();
@@ -590,94 +348,66 @@ async function insertRow(url, rowArr){
   return resp.json();
 }
 
-/** 
- * For partial updates to the "Backend" tab:
- *   /updateBackendCell => { rowNumber, columnLetter, newValue }
- */
 async function updateBackendCell(rowNumber, columnLetter, newValue){
   const bodyObj={ rowNumber, columnLetter, newValue };
   const resp=await fetch(UPDATE_BACKEND_CELL_URL, {
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body: JSON.stringify(bodyObj)
+    body:JSON.stringify(bodyObj)
   });
   if(!resp.ok){
     const txt=await resp.text();
     throw new Error(`${resp.status} => ${txt}`);
   }
-  return resp.json(); // typically { updatedRange:..., updatedRows:1, ... }
+  return resp.json();
 }
 
-
-/******************************************************************************
- * 3) FIND DIRECT QUESTION
- ******************************************************************************
- * We'll read "questionAssociates" to see who to direct Qs to. 
- *****************************************************************************/
 async function findDirectQuestion(clientName){
   if(!clientName)return"";
-  try {
+  try{
     const r=await fetch(QUESTION_ASSOC_URL);
     const j=await r.json();
-    if(!j.values || !Array.isArray(j.values))return"";
+    if(!j.values||!Array.isArray(j.values))return"";
     const headers=j.values[0]||[];
-    const dataRows=j.values.slice(1);
+    const data=j.values.slice(1);
     const cIdx=headers.indexOf("Client");
     const pIdx=headers.indexOf("Primary Contact");
     const sIdx=headers.indexOf("Secondary Contact");
     const bIdx=headers.indexOf("Backup Contact");
     if(cIdx<0)return"";
 
-    const row=dataRows.find(rr=>(rr[cIdx]||"").trim().toLowerCase()===clientName.toLowerCase());
+    const row=data.find(rr=>(rr[cIdx]||"").trim().toLowerCase()===clientName.toLowerCase());
     if(!row)return"";
     return row[pIdx]||row[sIdx]||row[bIdx]||"";
   }catch(e){
-    console.error("Error in findDirectQuestion =>", e);
+    console.error("findDirectQuestion =>",e);
     return"";
   }
 }
 
-/******************************************************************************
- * 4) RESET SCREEN
- ******************************************************************************
- * We hide #statusOptions, #notes, and unselect stopStatus radios,
- * plus clear the currentTask & rowNumber.
- *****************************************************************************/
 function resetScreen(){
   document.getElementById("statusOptions").style.display="none";
-  const noteEl=document.getElementById("notes");
-  noteEl.value="";
-  noteEl.style.display="none";
-
-  document.querySelectorAll('input[name="stopStatus"]').forEach(r => r.checked=false);
-
+  const note=document.getElementById("notes");
+  note.value="";
+  note.style.display="none";
+  document.querySelectorAll('input[name="stopStatus"]').forEach(r=>r.checked=false);
   currentTask=null;
-  currentRowNumber=null;
   startTime=null;
+  currentRowNumber=null;
   document.getElementById("taskDetail").innerHTML="";
 }
 
-/** 
- * Called once a radio is chosen => we display #notes 
- */
 function statusChosen(){
   document.getElementById("notes").style.display="block";
 }
 
-
-/******************************************************************************
- * 5) LOGIN
- ******************************************************************************
- * Hardcoded password => "abc123"
- * We fetch the "LaSalle Pod" to confirm user exists. 
+/*****************************************************************************
+ * LOGIN
  *****************************************************************************/
 async function login(){
   setNotification("");
   const user=document.getElementById("username").value.trim().toLowerCase();
   const pass=document.getElementById("password").value.trim();
-  highlightInput("username", !user);
-  highlightInput("password", !pass);
-
   if(!user||!pass){
     setNotification("Username and Password are required.",true);
     return;
@@ -686,55 +416,44 @@ async function login(){
     setNotification("Invalid login credentials.",true);
     return;
   }
-  const spin=document.getElementById("loginSpinner");
-  spin.style.display="block";
+  document.getElementById("loginSpinner").style.display="block";
   try{
     const r=await fetch(LASALLE_POD_URL);
     const j=await r.json();
-    spin.style.display="none";
+    document.getElementById("loginSpinner").style.display="none";
 
     if(!j.values||!Array.isArray(j.values)){
       setNotification("LaSalle Pod data not found or invalid structure.",true);
       return;
     }
-
     const headers=j.values[0]||[];
-    const dataRows=j.values.slice(1);
+    const data=j.values.slice(1);
     const uIdx=headers.indexOf("Username");
     const fnIdx=headers.indexOf("First Name");
     const lnIdx=headers.indexOf("Last Name");
     if(uIdx<0||fnIdx<0||lnIdx<0){
-      setNotification("Missing columns in 'LaSalle Pod' tab",true);
+      setNotification("Missing columns in 'LaSalle Pod'",true);
       return;
     }
-
-    const row=dataRows.find(rr=>(rr[uIdx]||"").trim().toLowerCase()===user);
+    const row=data.find(rr=>(rr[uIdx]||"").trim().toLowerCase()===user);
     if(!row){
       setNotification("User not found in LaSalle Pod data.",true);
       return;
     }
-    const fn=(row[fnIdx]||"").trim();
-    const ln=(row[lnIdx]||"").trim();
-    userFullName = fn+" "+ln;
+    const fn=(row[fnIdx]||"").trim(), ln=(row[lnIdx]||"").trim();
+    userFullName=fn+" "+ln;
 
-    document.getElementById("greeting").textContent = "Hello, "+userFullName+"!";
+    document.getElementById("greeting").textContent="Hello, "+userFullName+"!";
     document.getElementById("loginOverlay").style.display="none";
     document.getElementById("taskScreen").style.display="block";
   }catch(e){
-    spin.style.display="none";
+    document.getElementById("loginSpinner").style.display="none";
     setNotification("Error => "+e.message,true);
   }
 }
 
-
-/******************************************************************************
- * 6) START TASK
- ******************************************************************************
- * Called when user clicks "Start Task"
- *  - We read "Backend" => find first row with (Associate=userFullName, Status=Ready)
- *  - partial update => Column B => Start Time, Column F => "Started"
- *  - insert row => 18 columns in Task Data + Task History
- *  - show #statusOptions
+/*****************************************************************************
+ * START TASK
  *****************************************************************************/
 function startTaskClicked(){
   setNotification("");
@@ -756,10 +475,9 @@ async function loadReadyTask(){
       return;
     }
     const headers=j.values[0]||[];
-    const dataRows=j.values.slice(1);
-
+    const data=j.values.slice(1);
     const assocIdx=headers.indexOf("Associate:");
-    const statIdx =headers.indexOf("Status:");
+    const statIdx=headers.indexOf("Status:");
     if(assocIdx<0||statIdx<0){
       setNotification("Missing 'Associate:' or 'Status:' columns in Backend",true);
       resetScreen();
@@ -767,14 +485,13 @@ async function loadReadyTask(){
       return;
     }
 
-    let foundRow=null;
-    let rowNum=null;
-    for(let i=0; i<dataRows.length; i++){
-      const rowArr=dataRows[i];
+    let foundRow=null; let rowNum=null;
+    for(let i=0;i<data.length;i++){
+      const rowArr=data[i];
       const assoc=(rowArr[assocIdx]||"").trim().toLowerCase();
       const st=(rowArr[statIdx]||"").trim().toLowerCase();
       if(assoc===userFullName.toLowerCase() && st==="ready"){
-        rowNum = i+2; 
+        rowNum=i+2;
         foundRow=rowArr;
         break;
       }
@@ -787,70 +504,44 @@ async function loadReadyTask(){
       resetScreen();
       return;
     }
+    currentRowNumber=rowNum;
+    const taskObj=convertRowToObj(foundRow,headers);
+    currentTask=taskObj;
+    startTime=new Date();
 
-    // we have a "Ready" row
-    currentRowNumber = rowNum;
-    currentTask = convertRowToObj(foundRow, headers);
-    startTime = new Date();
+    // partial update => B => Start time, F => "Started"
+    await updateBackendCell(currentRowNumber,"B",formatDateTime(startTime));
+    await updateBackendCell(currentRowNumber,"F","Started");
 
-    // partial updates to "Backend" columns:
-    // B => Start Time
-    // F => "Started"
-    await updateBackendCell(currentRowNumber, COL_START_TIME, formatDateTime(startTime));
-    await updateBackendCell(currentRowNumber, COL_STATUS, "Started");
-
-    // Also insert row => "Started" into Task Data + Task History
     const startStr=formatDateTime(startTime);
-
-    // 18 columns
-    // 0) Update:
-    // 1) Start Time:
-    // 2) Stop Time:
-    // 3) Priority:
-    // 4) Associate:
-    // 5) Status:
-    // 6) Client:
-    // 7) Task:
-    // 8) Deliverable Name:
-    // 9) Deliverable ID:
-    // 10) Param1
-    // 11) Param2
-    // 12) Production Notes
-    // 13) Due Time
-    // 14) Due Date
-    // 15) Associate Notes
-    // 16) Job Code
-    // 17) Cumulative Time
-    const row18 = [
+    const row18=[
       "FALSE",
       startStr,
       "",
       "",
       userFullName,
       "Started",
-      currentTask["Client:"],
-      currentTask["Task:"],
-      currentTask["Deliverable Name:"],
-      currentTask["Deliverable ID:"],
-      currentTask["Parameter 1:"],
-      currentTask["Parameter 2:"],
-      currentTask["Production Notes:"],
-      currentTask["Due Time:"],
-      currentTask["Due Date:"],
+      taskObj["Client:"],
+      taskObj["Task:"],
+      taskObj["Deliverable Name:"],
+      taskObj["Deliverable ID:"],
+      taskObj["Parameter 1:"],
+      taskObj["Parameter 2:"],
+      taskObj["Production Notes:"],
+      taskObj["Due Time:"],
+      taskObj["Due Date:"],
       "",
-      currentTask["Job Code:"],
+      taskObj["Job Code:"],
       ""
     ];
-    await insertRow(TASK_DATA_URL,    [row18]);
+    await insertRow(TASK_DATA_URL, [row18]);
     await insertRow(TASK_HISTORY_URL, [row18]);
 
-    // now display details
     document.getElementById("startTaskBtn").style.display="none";
     document.getElementById("onCallModal").style.display="none";
 
-    await displayTaskDetails(currentTask);
+    await displayTaskDetails(taskObj);
     document.getElementById("statusOptions").style.display="block";
-
   }catch(e){
     showLoading(false);
     document.getElementById("startTaskBtn").style.display="inline-block";
@@ -858,38 +549,36 @@ async function loadReadyTask(){
   }
 }
 
-async function displayTaskDetails(task){
-  if(!task){
+function convertRowToObj(rowArr, headers){
+  const obj={};
+  headers.forEach((hdr,i)=>{
+    obj[hdr]=rowArr[i]||"";
+  });
+  return obj;
+}
+async function displayTaskDetails(t){
+  if(!t){
     document.getElementById("taskDetail").innerHTML="<p>No tasks to display.</p>";
     return;
   }
-  const qAssoc=await findDirectQuestion((task["Client:"]||"").trim());
+  const qAssoc=await findDirectQuestion((t["Client:"]||"").trim());
   const html=`
     <div class="details-grid">
-      <div><b>Client:</b> ${(task["Client:"]||"")}</div>
-      <div><b>Parameter 1:</b> ${(task["Parameter 1:"]||"")}</div>
-      <div><b>Task:</b> ${(task["Task:"]||"")}</div>
-      <div><b>Parameter 2:</b> ${(task["Parameter 2:"]||"")}</div>
-      <div><b>Deliverable Name:</b> ${(task["Deliverable Name:"]||"")}</div>
-      <div><b>Production Notes:</b> ${(task["Production Notes:"]||"")}</div>
+      <div><b>Client:</b> ${(t["Client:"]||"")}</div>
+      <div><b>Parameter 1:</b> ${(t["Parameter 1:"]||"")}</div>
+      <div><b>Task:</b> ${(t["Task:"]||"")}</div>
+      <div><b>Parameter 2:</b> ${(t["Parameter 2:"]||"")}</div>
+      <div><b>Deliverable Name:</b> ${(t["Deliverable Name:"]||"")}</div>
+      <div><b>Production Notes:</b> ${(t["Production Notes:"]||"")}</div>
       <div><b>Direct Questions To:</b> ${qAssoc||""}</div>
-      <div><b>Due Time:</b> ${(task["Due Time:"]||"")}</div>
+      <div><b>Due Time:</b> ${(t["Due Time:"]||"")}</div>
     </div>
   `;
   document.getElementById("taskDetail").innerHTML=html;
 }
 
-
-/******************************************************************************
- * 7) STOP TASK
- ******************************************************************************
- * Called when user clicks "Stop Task":
- *  partial updates in "Backend" for columns:
- *   - C => Stop Time
- *   - F => final status
- *   - P => Associate Notes
- * plus inserting a row in Task Data/History with 18 columns, including 
- * "Stop Time:" and "Associate Notes:" and the computed "Cumulative Time:".
+/*****************************************************************************
+ * STOP TASK
  *****************************************************************************/
 async function stopTask(){
   setNotification("");
@@ -902,25 +591,17 @@ async function stopTask(){
     endStopSpinner();
     return;
   }
-
-  // which radio?
   let chosen="";
-  const rads=document.getElementsByName("stopStatus");
-  for(let i=0;i<rads.length;i++){
-    if(rads[i].checked){
-      chosen=rads[i].value;
-      break;
-    }
-  }
+  document.getElementsByName("stopStatus").forEach(r=>{
+    if(r.checked) chosen=r.value;
+  });
   if(!chosen){
     setNotification("Please select a status first.",true);
     endStopSpinner();
     return;
   }
-  // if "In Progress" or "Issue", notes required
   const noteVal=document.getElementById("notes").value.trim();
   const requiresNote=(chosen==="In Progress"||chosen==="Issue");
-  highlightInput("notes", requiresNote && !noteVal);
   if(requiresNote && !noteVal){
     setNotification(`Notes are required for status: ${chosen}`,true);
     endStopSpinner();
@@ -928,21 +609,17 @@ async function stopTask(){
   }
 
   try{
-    const stopNow = new Date();
-    const stopStr = formatDateTime(stopNow);
-    const cTime   = computeCumulativeTime(startTime, stopNow);
+    const stopNow=new Date();
+    const stopStr=formatDateTime(stopNow);
+    const cTime=computeCumulativeTime(startTime, stopNow);
 
-    // partial updates to "Backend"
-    // column C => Stop Time
-    // column F => chosen status
-    // column P => notes
+    // partial updates => C => stop time, F => status, P => notes
     if(currentRowNumber){
-      await updateBackendCell(currentRowNumber, COL_STOP_TIME, stopStr);
-      await updateBackendCell(currentRowNumber, COL_STATUS, chosen);
-      await updateBackendCell(currentRowNumber, COL_NOTES, noteVal);
+      await updateBackendCell(currentRowNumber,"C",stopStr);
+      await updateBackendCell(currentRowNumber,"F",chosen);
+      await updateBackendCell(currentRowNumber,"P",noteVal);
     }
 
-    // also insert row => 18 columns to Task Data + Task History
     const row18=[
       "FALSE",
       formatDateTime(startTime)||"",
@@ -971,32 +648,23 @@ async function stopTask(){
   }finally{
     resetScreen();
     endStopSpinner();
-
     document.getElementById("startTaskBtn").style.display="inline-block";
     document.getElementById("startTaskBtn").innerText="Start Task";
   }
 }
-
 function endStopSpinner(){
   document.getElementById("stopSpinner").style.display="none";
   document.querySelector(".stop-btn").style.display="inline-block";
   showLoading(false);
 }
 
-
-/******************************************************************************
- * 8) ON CALL / LOGOUT
- ******************************************************************************
- * If no tasks => On Call modal. Then they can Refresh or close game.
+/*****************************************************************************
+ * ON CALL / LOGOUT
  *****************************************************************************/
 function closeOnCall(){
   document.getElementById("onCallModal").style.display="none";
   resetScreen();
 }
-
-/** 
- * logout => reset screen, hide #taskScreen, show #loginOverlay
- */
 function logout(){
   setNotification("");
   resetScreen();
@@ -1006,14 +674,6 @@ function logout(){
   document.getElementById("username").value="";
   document.getElementById("password").value="";
 }
-
-
-/******************************************************************************
- * ~END~
- * This file is intentionally verbose (~800 lines) to incorporate every detail 
- * from the conversation. Replace the domain references with your Worker domain.
- * 
- *****************************************************************************/
 </script>
 </body>
 </html>
