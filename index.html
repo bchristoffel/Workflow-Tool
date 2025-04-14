@@ -13,16 +13,14 @@
       height: 100%;
       font-family: 'Segoe UI', sans-serif;
     }
+
     /* Loading overlay */
     #loadingOverlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       display: none;
-      align-items: center;
-      justify-content: center;
+      align-items: center; justify-content: center;
       background-color: rgba(0, 0, 0, 0.4);
       z-index: 9999;
     }
@@ -38,8 +36,7 @@
       align-items: center;
     }
     .bigSpinner {
-      width: 40px;
-      height: 40px;
+      width: 40px; height: 40px;
       border: 5px solid #f3f3f3;
       border-top: 5px solid #333;
       border-radius: 50%;
@@ -54,72 +51,52 @@
     /* ====================== LOGIN OVERLAY ====================== */
     #loginOverlay {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(ellipse at center, rgba(20, 30, 60, 0.15) 0%, rgba(20, 40, 70, 0.8) 70%, rgba(20, 40, 70, 1) 100%),
-                  url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1350&q=80')
-                  no-repeat center center fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background:
+        radial-gradient(ellipse at center, rgba(20, 30, 60, 0.15) 0%, rgba(20, 40, 70, 0.8) 70%, rgba(20, 40, 70, 1) 100%),
+        url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1350&q=80')
+          no-repeat center center fixed;
       background-size: cover;
       z-index: 1000;
     }
     .login-container {
       background: rgba(255, 255, 255, 0.94);
-      width: 360px;
-      padding: 30px;
-      border-radius: 14px;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+      width: 360px; padding: 30px;
+      border-radius: 14px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
       text-align: center;
     }
     .login-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      color: #0d3b66;
-      margin-bottom: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: #0d3b66; margin-bottom: 24px;
     }
     .login-header i {
       margin-left: 8px;
-      font-size: 24px;
-      color: #000;
+      font-size: 24px; color: #000;
     }
     input, button {
       width: 100%;
-      padding: 10px;
-      border-radius: 4px;
-      margin-top: 10px;
-      font-size: 15px;
+      padding: 10px; border-radius: 4px;
+      margin-top: 10px; font-size: 15px;
       font-family: 'Segoe UI', sans-serif;
     }
     input {
-      border: 1px solid #ccc;
-      transition: border 0.2s;
+      border: 1px solid #ccc; transition: border 0.2s;
     }
     .input-error { border-color: red !important; }
     button {
       border: none;
-      background: #b2ebf2;
-      color: #00332d;
-      font-weight: 600;
-      cursor: pointer;
+      background: #b2ebf2; color: #00332d;
+      font-weight: 600; cursor: pointer;
     }
     button:hover { background: #9adee6; }
     #loginSpinner {
-      display: none;
-      text-align: center;
-      margin-top: 20px;
+      display: none; text-align: center; margin-top: 20px;
     }
     #loginSpinner .dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      margin: 3px;
-      background-color: #333;
+      display: inline-block; width: 8px; height: 8px;
+      margin: 3px; background-color: #333;
       border-radius: 50%;
       animation: wave 1.2s infinite ease-in-out;
     }
@@ -134,59 +111,42 @@
     /* ====================== MAIN TASK SCREEN ====================== */
     #taskScreen {
       display: none;
-      width: 100%;
-      height: 100%;
-      /* Soft minty dynamic background */
+      width: 100%; height: 100%;
       background: linear-gradient(135deg, #e0f7f1, #c0e7d9);
-      position: relative;
-      overflow: auto;
+      position: relative; overflow: auto;
       z-index: 1;
     }
-    /* Center container with greeting, start button, and a bouncing briefcase icon */
     #centerContainer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 80vh;
-      margin: 0 auto;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 80vh; margin: 0 auto;
       position: relative;
     }
-    /* Floating briefcase icon */
+    /* Bouncing briefcase - DVD screensaver style */
     #floatingBriefcase {
-      position: absolute;
+      position: absolute; 
       pointer-events: none;
       font-size: 50px;
       color: rgba(0, 0, 0, 0.15);
-      animation: floatBriefcase 15s ease-in-out infinite;
-    }
-    @keyframes floatBriefcase {
-      0%   { top: 10%; left: 10%; }
-      25%  { top: 20%; left: 70%; }
-      50%  { top: 50%; left: 40%; }
-      75%  { top: 80%; left: 60%; }
-      100% { top: 70%; left: 20%; }
-    }
-    #greeting {
-      margin: 0 0 20px;
-      font-size: 22px;
-      color: #1d3330;
-    }
-    #startTaskBtn {
-      width: 240px;
-      height: 45px;
-      font-size: 16px;
+      left: 20px; 
+      top: 20px;
     }
 
-    /* Task details (2 columns) */
+    #greeting {
+      margin: 0 0 10px; /* reduced gap */
+      font-size: 22px; color: #1d3330;
+    }
+    #startTaskBtn {
+      width: 240px; height: 45px; font-size: 16px;
+    }
+
+    /* Task details (2 columns), smaller spacing */
     .details-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 5px;
-      max-width: 800px;
-      margin: 10px auto; /* Reduced margin */
-      background: #fff;
-      padding: 10px; /* Reduced padding */
+      max-width: 800px; margin: 10px auto;
+      background: #fff; padding: 10px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
@@ -202,163 +162,103 @@
       text-align: center;
     }
     .status-container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
+      display: flex; justify-content: center; gap: 20px;
       margin-top: 20px;
     }
 
-    /* Associate Notes - Removed title, just the text box */
+    /* No "Associate Notes" label, just the box */
     .notes-container {
-      width: 80%;
-      margin: 16px auto;
-      text-align: left;
+      width: 80%; margin: 16px auto; text-align: left;
     }
     #notes {
-      display: block;
-      width: 100%;
-      height: 100px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 8px;
-      font-size: 14px;
-      transition: border 0.2s;
-      resize: vertical;
+      display: block; width: 100%; height: 100px;
+      border: 1px solid #ccc; border-radius: 4px;
+      padding: 8px; font-size: 14px;
+      transition: border 0.2s; resize: vertical;
     }
 
     .stop-task-container { margin-top: 20px; }
     .stop-btn {
-      width: 150px;
-      height: 40px;
-      font-size: 15px;
-      font-weight: 600;
-      background: #b2ebf2;
-      color: #00332d;
-      cursor: pointer;
-      border: none;
-      border-radius: 4px;
+      width: 150px; height: 40px; font-size: 15px; font-weight: 600;
+      background: #b2ebf2; color: #00332d; cursor: pointer;
+      border: none; border-radius: 4px;
     }
     .stop-btn:hover { background: #9adee6; }
     #stopSpinner {
-      display: none;
-      margin: 10px auto;
-      width: 30px;
-      height: 30px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #333;
-      border-radius: 50%;
+      display: none; margin: 10px auto; width: 30px; height: 30px;
+      border: 4px solid #f3f3f3; border-top: 4px solid #333; border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
 
-    /* ON CALL MODAL (with Inline Bouncy Balls Game) */
+    /* ON CALL MODAL */
     #onCallModal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 14px;
+      display: none; position: fixed;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: white; padding: 20px; border-radius: 14px;
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
-      text-align: center;
-      width: 600px;
-      max-width: 90vw;
+      text-align: center; width: 600px; max-width: 90vw;
       font-family: 'Segoe UI', sans-serif;
       z-index: 2000;
     }
     #onCallModal h3 {
-      margin: 0 0 10px;
-      font-size: 20px;
-      color: #1d3330;
+      margin: 0 0 10px; font-size: 20px; color: #1d3330; font-weight: normal;
     }
     #dinoGameCanvas {
-      display: block;
-      margin: 0 auto;
-      border: 1px solid #ccc;
-      background: #e0f7f1;
+      display: block; margin: 0 auto;
+      border: 1px solid #ccc; background: #e0f7f1;
+      width: 100%; max-width: 580px; /* ensure it stays within the popup */
+      height: 300px; /* for better fit inside the modal */
     }
     #onCallModal p {
-      line-height: 1.4;
-      margin: 10px 0;
+      line-height: 1.4; margin: 10px 0;
     }
     #onCallModal button {
-      margin-top: 10px;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      background: #b2ebf2;
-      color: #00332d;
-      cursor: pointer;
+      margin-top: 10px; padding: 8px 16px; border: none; border-radius: 4px;
+      background: #b2ebf2; color: #00332d; cursor: pointer;
     }
 
-    /* POPUP MODAL for Task Stopped / Refresh Reminder */
+    /* POPUP MODAL for Task Stopped / Refresh Reminder => bigger, max-width: 500px */
     #popupModal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
+      position: fixed; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       background: #fafafa;
-      padding: 20px;
-      border-radius: 12px;
+      padding: 20px; border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      z-index: 3000;
-      display: none;
-      text-align: center;
-      max-width: 400px;
+      z-index: 3000; display: none; text-align: center;
+      max-width: 500px; /* bigger than previous */
     }
     #popupModal button {
-      margin-top: 10px;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      background: #b2ebf2;
-      color: #00332d;
+      margin-top: 10px; padding: 8px 16px; border: none;
+      border-radius: 4px; background: #b2ebf2; color: #00332d;
       cursor: pointer;
     }
 
-    /* CONFIRM MODAL for Stop Task Confirmation: Shorter & Wider */
+    /* CONFIRM MODAL => narrower => e.g., max-width: 300px */
     #confirmModal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
+      position: fixed; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      background: #fff;
-      padding: 15px 30px;
-      border-radius: 12px;
+      background: #fff; padding: 15px 25px; border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      z-index: 3000;
-      display: none;
-      text-align: center;
-      max-width: 400px;
+      z-index: 3000; display: none; text-align: center;
+      max-width: 300px;
     }
     #confirmModal button {
-      margin: 5px;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      background: #b2ebf2;
-      color: #00332d;
+      margin: 5px; padding: 8px 16px; border: none;
+      border-radius: 4px; background: #b2ebf2; color: #00332d;
       cursor: pointer;
     }
     #confirmModal button:hover {
       background: #9adee6;
     }
 
-    /* Logout link: Fixed to bottom center */
+    /* Fixed Log Out at page bottom, not overlapping */
     .logout-link {
       position: fixed;
-      bottom: 10px;
-      left: 50%;
+      bottom: 0; left: 50%;
       transform: translateX(-50%);
-      color: #00332d;
-      text-decoration: underline;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      background: #f0f0f0;
-      padding: 5px 10px;
-      border-radius: 4px;
+      color: #00332d; text-decoration: underline; cursor: pointer;
+      font-weight: 600; font-size: 14px;
+      background: #f0f0f0; padding: 5px 10px; border-radius: 4px;
       z-index: 5000;
     }
     .logout-link:hover {
@@ -397,13 +297,14 @@
   <div id="taskScreen">
     <div id="notificationBar"></div>
     <div id="centerContainer">
-      <div id="briefcaseIcon"><i class="fa-solid fa-briefcase"></i></div>
       <h2 id="greeting"></h2>
       <button id="startTaskBtn" onclick="startTaskClicked()">Start Task</button>
-      <!-- Floating briefcase that bounces around -->
+      <!-- Bouncing briefcase that truly bounces off edges at slow speed -->
       <div id="floatingBriefcase"><i class="fa-solid fa-briefcase"></i></div>
     </div>
+
     <div id="taskDetail" style="margin-top:10px;"></div>
+
     <div id="statusOptions">
       <div class="status-container">
         <label>
@@ -419,7 +320,6 @@
           Completed
         </label>
       </div>
-      <!-- Removed the Associate Notes title -->
       <div class="notes-container">
         <textarea id="notes" placeholder="Associate Notes"></textarea>
       </div>
@@ -428,16 +328,17 @@
         <div id="stopSpinner"></div>
       </div>
     </div>
+
     <span class="logout-link" onclick="logout()">Log Out</span>
   </div>
 
   <!-- ON CALL MODAL -->
   <div id="onCallModal">
     <h3>
-      On Call: Please refresh every five minutes.<br>
+      On Call: Please refresh every five minutes.
       If you are still On Call after 15 minutes, please reach out to your Lead.
     </h3>
-    <canvas id="dinoGameCanvas" width="600" height="400"></canvas>
+    <canvas id="dinoGameCanvas"></canvas>
     <p style="line-height:1.4;">
       Play the game or hit “Refresh” to check for tasks again.
     </p>
@@ -461,7 +362,7 @@
     /***************************************************************************** 
      * FRONT-END CONFIG / GLOBALS
      *****************************************************************************/
-    const BASE_URL = "https://my-api.bchristoffel02.workers.dev"; // Your Worker domain
+    const BASE_URL = "https://my-api.bchristoffel02.workers.dev"; // <== Your Worker domain
     const TASK_DATA_URL = BASE_URL + "/taskData";
     const TASK_HISTORY_URL = BASE_URL + "/taskHistory";
     const LASALLE_POD_URL = BASE_URL + "/lasallePod";
@@ -469,14 +370,14 @@
     const GET_BACKEND_URL = BASE_URL + "/backend";
     const UPDATE_BACKEND_URL = BASE_URL + "/updateBackend";
 
-    const HARDCODED_PASS = "abc123"; // demo only
+    const HARDCODED_PASS = "abc123"; // demonstration only
 
     let userFullName = "";
     let currentTask = null;
     let startTime = null;
     let currentRowNumber = null; // row index in "Backend"
 
-    // For confirmation modal
+    // Confirmation modal data
     let pendingStopStatus = "";
     let pendingNoteVal = "";
 
@@ -484,11 +385,11 @@
     let refreshReminderInterval = null;
 
     /***************************************************************************** 
-     * HELPER / UTILITY FUNCTIONS
+     * HELPER / UTILITY
      *****************************************************************************/
-    function setNotification(msg, isError = false) {
+    function setNotification(msg, isError=false) {
       const bar = document.getElementById("notificationBar");
-      if (!msg) {
+      if(!msg){
         bar.style.display = "none";
         bar.innerText = "";
         return;
@@ -497,47 +398,41 @@
       bar.style.color = isError ? "red" : "#0f5132";
       bar.innerText = msg;
     }
-    function highlightInput(id, shouldHighlight) {
+    function highlightInput(id, shouldHighlight){
       const el = document.getElementById(id);
-      if (!el) return;
-      if (shouldHighlight) el.classList.add("input-error");
+      if(!el) return;
+      if(shouldHighlight) el.classList.add("input-error");
       else el.classList.remove("input-error");
     }
-    function showLoading(show) {
-      if (document.getElementById("popupModal").style.display === "block") {
-        document.getElementById("loadingOverlay").style.display = "none";
+    function showLoading(show){
+      if(document.getElementById("popupModal").style.display==="block"){
+        document.getElementById("loadingOverlay").style.display="none";
         return;
       }
       document.getElementById("loadingOverlay").style.display = show ? "flex" : "none";
     }
-    function formatDateTime(d) {
-      if (!(d instanceof Date)) return "";
-      const pad = n => (n < 10 ? "0" + n : "" + n);
-      const mm = pad(d.getMonth() + 1),
-            dd = pad(d.getDate()),
-            yy = d.getFullYear();
-      const hh = pad(d.getHours()),
-            mn = pad(d.getMinutes()),
-            sc = pad(d.getSeconds());
+    function formatDateTime(d){
+      if(!(d instanceof Date)) return "";
+      const pad = n => (n<10 ? "0"+n : ""+n);
+      const mm=pad(d.getMonth()+1), dd=pad(d.getDate()), yy=d.getFullYear();
+      const hh=pad(d.getHours()), mn=pad(d.getMinutes()), sc=pad(d.getSeconds());
       return `${mm}/${dd}/${yy} ${hh}:${mn}:${sc}`;
     }
-    function computeCumulativeTime(st, sp) {
-      if (!st || !sp) return "";
+    function computeCumulativeTime(st, sp){
+      if(!st || !sp) return "";
       const diff = sp - st;
-      const sec = Math.floor(diff / 1000);
-      const h = Math.floor(sec / 3600),
-            m = Math.floor((sec % 3600) / 60),
-            s = sec % 60;
-      const pad = n => (n < 10 ? "0" + n : "" + n);
+      const sec = Math.floor(diff/1000);
+      const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+      const pad = n => (n<10 ? "0"+n : ""+n);
       return `${h}:${pad(m)}:${pad(s)}`;
     }
-    async function insertRow(url, rowArr) {
+    async function insertRow(url, rowArr){
       const resp = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({ values: rowArr })
       });
-      if (!resp.ok) {
+      if(!resp.ok){
         const txt = await resp.text();
         throw new Error(`${resp.status} => ${txt}`);
       }
@@ -545,188 +440,196 @@
     }
     async function updateBackend(rowNumber, newStatus, startTime, stopTime, notes) {
       const payload = { rowNumber };
-      if (newStatus) payload.newStatus = newStatus;
-      if (startTime) payload.startTime = startTime;
-      if (stopTime) payload.stopTime = stopTime;
-      if (notes) payload.notes = notes;
+      if(newStatus) payload.newStatus = newStatus;
+      if(startTime) payload.startTime = startTime;
+      if(stopTime)  payload.stopTime  = stopTime;
+      if(notes)     payload.notes     = notes;
+
       const resp = await fetch(UPDATE_BACKEND_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      if (!resp.ok) {
+      if(!resp.ok){
         const txt = await resp.text();
         throw new Error(`${resp.status} => ${txt}`);
       }
       return resp.json();
     }
-    async function findDirectQuestion(clientName) {
-      if (!clientName) return "";
+    async function findDirectQuestion(clientName){
+      if(!clientName) return "";
       try {
         const r = await fetch(QUESTION_ASSOC_URL);
         const j = await r.json();
-        if (!Array.isArray(j.values) || !j.values.length) return "";
-        const headers = j.values[0] || [];
-        const data = j.values.slice(1);
+        if(!Array.isArray(j.values) || !j.values.length) return "";
+        const headers=j.values[0]||[];
+        const data=j.values.slice(1);
         const cIdx = headers.indexOf("Client");
         const pIdx = headers.indexOf("Primary Contact");
         const sIdx = headers.indexOf("Secondary Contact");
         const bIdx = headers.indexOf("Backup Contact");
-        if (cIdx < 0) return "";
-        const row = data.find(rr => (rr[cIdx] || "").trim().toLowerCase() === clientName.toLowerCase());
-        if (!row) return "";
+        if(cIdx<0) return "";
+        const row = data.find(rr => (rr[cIdx]||"").trim().toLowerCase()===clientName.toLowerCase());
+        if(!row) return "";
         return row[pIdx] || row[sIdx] || row[bIdx] || "";
-      } catch (e) {
-        console.error("findDirectQuestion =>", e);
+      } catch(e){
+        console.error("findDirectQuestion =>",e);
         return "";
       }
     }
-    function resetScreen() {
-      document.getElementById("statusOptions").style.display = "none";
-      document.getElementById("notes").value = "";
-      document.querySelectorAll('input[name="stopStatus"]').forEach(r => r.checked = false);
-      currentTask = null;
-      startTime = null;
-      currentRowNumber = null;
-      document.getElementById("taskDetail").innerHTML = "";
+    function resetScreen(){
+      document.getElementById("statusOptions").style.display="none";
+      document.getElementById("notes").value="";
+      document.querySelectorAll('input[name="stopStatus"]').forEach(r=>r.checked=false);
+
+      currentTask=null;
+      startTime=null;
+      currentRowNumber=null;
+      document.getElementById("taskDetail").innerHTML="";
     }
-    function checkEnter(e) {
-      if (e.key === "Enter") login();
+    function checkEnter(e){
+      if(e.key==="Enter") login();
     }
 
     /***************************************************************************** 
-     * POPUP MODAL FUNCTIONS
+     * POPUP MODAL
      *****************************************************************************/
-    function showPopup(message) {
-      document.getElementById("loadingOverlay").style.display = "none";
-      document.getElementById("popupMessage").innerHTML = message;
-      document.getElementById("popupModal").style.display = "block";
+    function showPopup(message){
+      document.getElementById("loadingOverlay").style.display="none";
+      document.getElementById("popupMessage").innerHTML=message;
+      document.getElementById("popupModal").style.display="block";
     }
-    function closePopup() {
-      document.getElementById("popupModal").style.display = "none";
+    function closePopup(){
+      document.getElementById("popupModal").style.display="none";
     }
 
     /***************************************************************************** 
-     * CONFIRM MODAL FUNCTIONS for Stop Task Confirmation
+     * CONFIRM MODAL
      *****************************************************************************/
-    function showConfirmModal(message) {
-      document.getElementById("confirmMessage").innerHTML = message;
-      document.getElementById("confirmModal").style.display = "block";
+    function showConfirmModal(message){
+      document.getElementById("confirmMessage").innerHTML=message;
+      document.getElementById("confirmModal").style.display="block";
     }
-    function hideConfirmModal() {
-      document.getElementById("confirmModal").style.display = "none";
+    function hideConfirmModal(){
+      document.getElementById("confirmModal").style.display="none";
     }
-    function confirmStop() {
+    function confirmStop(){
       hideConfirmModal();
-      document.getElementById("stopSpinner").style.display = "block";
-      document.querySelector(".stop-btn").style.display = "none";
+      document.getElementById("stopSpinner").style.display="block";
+      document.querySelector(".stop-btn").style.display="none";
       showLoading(true);
       executeStopTask();
     }
-    function cancelStop() {
+    function cancelStop(){
       hideConfirmModal();
-      document.getElementById("stopSpinner").style.display = "none";
-      document.querySelector(".stop-btn").style.display = "inline-block";
+      document.getElementById("stopSpinner").style.display="none";
+      document.querySelector(".stop-btn").style.display="inline-block";
       showLoading(false);
     }
 
     /***************************************************************************** 
      * 1) LOGIN
      *****************************************************************************/
-    async function login() {
+    async function login(){
       setNotification("");
       const user = document.getElementById("username").value.trim().toLowerCase();
       const pass = document.getElementById("password").value.trim();
+
       highlightInput("username", !user);
       highlightInput("password", !pass);
-      if (!user || !pass) {
-        setNotification("Username and Password are required.", true);
+      if(!user || !pass){
+        setNotification("Username and Password are required.",true);
         return;
       }
-      if (pass !== HARDCODED_PASS) {
-        setNotification("Invalid login credentials.", true);
+      if(pass!=="abc123"){
+        setNotification("Invalid login credentials.",true);
         return;
       }
+
       const spin = document.getElementById("loginSpinner");
-      spin.style.display = "block";
+      spin.style.display="block";
       try {
         const res = await fetch(LASALLE_POD_URL);
         const data = await res.json();
-        spin.style.display = "none";
-        if (!data.values || !Array.isArray(data.values)) {
-          setNotification("LaSalle Pod data not found or invalid structure.", true);
+        spin.style.display="none";
+        if(!data.values || !Array.isArray(data.values)){
+          setNotification("LaSalle Pod data not found or invalid structure.",true);
           return;
         }
-        const headers = data.values[0] || [];
-        const rows = data.values.slice(1);
+        const headers=data.values[0]||[];
+        const rows=data.values.slice(1);
         const uIdx = headers.indexOf("Username");
-        const fnIdx = headers.indexOf("First Name");
-        const lnIdx = headers.indexOf("Last Name");
-        if (uIdx < 0 || fnIdx < 0 || lnIdx < 0) {
-          setNotification("Missing columns in 'LaSalle Pod'!", true);
+        const fnIdx= headers.indexOf("First Name");
+        const lnIdx= headers.indexOf("Last Name");
+        if(uIdx<0 || fnIdx<0 || lnIdx<0){
+          setNotification("Missing columns in 'LaSalle Pod'!",true);
           return;
         }
-        const match = rows.find(r => (r[uIdx] || "").trim().toLowerCase() === user);
-        if (!match) {
-          setNotification("User not found in LaSalle Pod data.", true);
+
+        const match = rows.find(r => (r[uIdx]||"").trim().toLowerCase()===user);
+        if(!match){
+          setNotification("User not found in LaSalle Pod data.",true);
           return;
         }
-        userFullName = (match[fnIdx] || "").trim() + " " + (match[lnIdx] || "").trim();
-        document.getElementById("greeting").textContent = "Hello, " + userFullName + "!";
-        document.getElementById("loginOverlay").style.display = "none";
-        document.getElementById("taskScreen").style.display = "block";
-      } catch (e) {
-        spin.style.display = "none";
-        setNotification("Error => " + e.message, true);
+        userFullName = (match[fnIdx]||"").trim()+" "+(match[lnIdx]||"").trim();
+
+        document.getElementById("greeting").textContent = "Hello, "+userFullName+"!";
+        document.getElementById("loginOverlay").style.display="none";
+        document.getElementById("taskScreen").style.display="block";
+
+      } catch(e){
+        spin.style.display="none";
+        setNotification("Error => "+e.message,true);
       }
     }
 
     /***************************************************************************** 
      * 2) START TASK
      *****************************************************************************/
-    function startTaskClicked() {
+    function startTaskClicked(){
       setNotification("");
-      document.getElementById("startTaskBtn").style.display = "none";
+      document.getElementById("startTaskBtn").style.display="none";
       showLoading(true);
       loadReadyTaskFromBackend();
     }
-    async function loadReadyTaskFromBackend() {
+    async function loadReadyTaskFromBackend(){
       try {
         const res = await fetch(GET_BACKEND_URL);
-        const j = await res.json();
-        if (!j.values) {
-          setNotification("No 'values' found in the Backend tab.", true);
-          document.getElementById("startTaskBtn").style.display = "inline-block";
+        const j   = await res.json();
+        if(!j.values){
+          setNotification("No 'values' found in the Backend tab.",true);
+          document.getElementById("startTaskBtn").style.display="inline-block";
           showLoading(false);
           return;
         }
-        const headers = j.values[0] || [];
-        const data = j.values.slice(1);
-        const assocIdx = headers.indexOf("Associate:");
+        const headers = j.values[0]||[];
+        const data    = j.values.slice(1);
+        const assocIdx= headers.indexOf("Associate:");
         const statIdx = headers.indexOf("Status:");
-        if (assocIdx < 0 || statIdx < 0) {
-          setNotification("Missing 'Associate:' or 'Status:' in 'Backend' tab columns.", true);
-          document.getElementById("startTaskBtn").style.display = "inline-block";
+        if(assocIdx<0 || statIdx<0){
+          setNotification("Missing 'Associate:' or 'Status:' in 'Backend' tab columns.",true);
+          document.getElementById("startTaskBtn").style.display="inline-block";
           showLoading(false);
           return;
         }
-        let found = null;
-        for (let i = 0; i < data.length; i++) {
+
+        let found=null;
+        for(let i=0; i<data.length; i++){
           const rowArr = data[i];
-          const assoc = (rowArr[assocIdx] || "").trim().toLowerCase();
-          const stat = (rowArr[statIdx] || "").trim().toLowerCase();
-          if (assoc === userFullName.toLowerCase() && stat === "ready") {
-            currentRowNumber = i + 2;
+          const assoc = (rowArr[assocIdx]||"").trim().toLowerCase();
+          const stat  = (rowArr[statIdx] ||"").trim().toLowerCase();
+          if(assoc===userFullName.toLowerCase() && stat==="ready"){
+            currentRowNumber = i+2; // row index (header is row1)
             found = rowArr;
             break;
           }
         }
-        if (!found) {
+        if(!found){
           setNotification("");
-          document.getElementById("startTaskBtn").style.display = "inline-block";
-          document.getElementById("startTaskBtn").innerText = "Refresh";
-          document.getElementById("onCallModal").style.display = "block";
-          if (!refreshReminderInterval) {
+          document.getElementById("startTaskBtn").style.display="inline-block";
+          document.getElementById("startTaskBtn").innerText="Refresh";
+          document.getElementById("onCallModal").style.display="block";
+          if(!refreshReminderInterval){
             refreshReminderInterval = setInterval(() => {
               showPopup("Please refresh to check for new tasks.");
             }, 5 * 60 * 1000);
@@ -734,21 +637,18 @@
           showLoading(false);
           return;
         }
-        if (refreshReminderInterval) {
+        if(refreshReminderInterval){
           clearInterval(refreshReminderInterval);
           refreshReminderInterval = null;
         }
+
         currentTask = convertRowToObj(found, headers);
-        startTime = new Date();
+        startTime   = new Date();
         const startStr = formatDateTime(startTime);
         await updateBackend(currentRowNumber, "Started", startStr, null, null);
+
         const row = [
-          "FALSE",
-          startStr,
-          "",
-          "",
-          userFullName,
-          "Started",
+          "FALSE", startStr, "", "", userFullName, "Started",
           currentTask["Client:"],
           currentTask["Task:"],
           currentTask["Deliverable Name:"],
@@ -764,80 +664,86 @@
         ];
         await insertRow(TASK_DATA_URL, [row]);
         await insertRow(TASK_HISTORY_URL, [row]);
+
         displayTaskDetails(currentTask);
-        document.getElementById("statusOptions").style.display = "block";
+        document.getElementById("statusOptions").style.display="block";
         showLoading(false);
-      } catch (e) {
+
+      } catch(e){
         showLoading(false);
-        document.getElementById("startTaskBtn").style.display = "inline-block";
-        setNotification("Error => " + e.message, true);
+        document.getElementById("startTaskBtn").style.display="inline-block";
+        setNotification("Error => "+e.message, true);
       }
     }
-    function convertRowToObj(rowArr, headers) {
+    function convertRowToObj(rowArr, headers){
       const obj = {};
-      headers.forEach((hdr, i) => {
+      headers.forEach((hdr, i)=>{
         obj[hdr] = rowArr[i] || "";
       });
       return obj;
     }
-    async function displayTaskDetails(task) {
-      if (!task) {
-        document.getElementById("taskDetail").innerHTML = "<p>No task found.</p>";
+    async function displayTaskDetails(task){
+      if(!task){
+        document.getElementById("taskDetail").innerHTML="<p>No task found.</p>";
         return;
       }
-      const qAssoc = await findDirectQuestion(task["Client:"] || "");
-      const html = `
+      const qAssoc= await findDirectQuestion(task["Client:"]||"");
+      const html=`
         <div class="details-grid">
-          <div><b>Client:</b> ${(task["Client:"] || "")}</div>
-          <div><b>Parameter 1:</b> ${(task["Parameter 1:"] || "")}</div>
-          <div><b>Task:</b> ${(task["Task:"] || "")}</div>
-          <div><b>Parameter 2:</b> ${(task["Parameter 2:"] || "")}</div>
-          <div><b>Deliverable Name:</b> ${(task["Deliverable Name:"] || "")}</div>
-          <div><b>Production Notes:</b> ${(task["Production Notes:"] || "")}</div>
-          <div><b>Direct Questions To:</b> ${qAssoc || ""}</div>
-          <div><b>Due Time:</b> ${(task["Due Time:"] || "")}</div>
+          <div><b>Client:</b> ${(task["Client:"]||"")}</div>
+          <div><b>Parameter 1:</b> ${(task["Parameter 1:"]||"")}</div>
+          <div><b>Task:</b> ${(task["Task:"]||"")}</div>
+          <div><b>Parameter 2:</b> ${(task["Parameter 2:"]||"")}</div>
+          <div><b>Deliverable Name:</b> ${(task["Deliverable Name:"]||"")}</div>
+          <div><b>Production Notes:</b> ${(task["Production Notes:"]||"")}</div>
+          <div><b>Direct Questions To:</b> ${qAssoc||""}</div>
+          <div><b>Due Time:</b> ${(task["Due Time:"]||"")}</div>
         </div>
       `;
-      document.getElementById("taskDetail").innerHTML = html;
+      document.getElementById("taskDetail").innerHTML=html;
     }
 
     /***************************************************************************** 
-     * 3) STOP TASK with Confirmation Modal
+     * 3) STOP TASK
      *****************************************************************************/
-    async function stopTask() {
+    async function stopTask(){
       setNotification("");
-      if (!currentTask) {
-        setNotification("No current task to stop.", true);
+      if(!currentTask){
+        setNotification("No current task to stop.",true);
         return;
       }
-      let chosen = "";
-      document.querySelectorAll('input[name="stopStatus"]').forEach(r => {
-        if (r.checked) chosen = r.value;
+      let chosen="";
+      document.querySelectorAll('input[name="stopStatus"]').forEach(r=>{
+        if(r.checked) chosen = r.value;
       });
-      if (!chosen) {
-        setNotification("Please select a status first.", true);
+      if(!chosen){
+        setNotification("Please select a status first.",true);
         return;
       }
+
       const noteVal = document.getElementById("notes").value.trim();
-      const requiresNote = (chosen === "In Progress" || chosen === "Issue");
+      const requiresNote = (chosen==="In Progress"||chosen==="Issue");
       highlightInput("notes", requiresNote && !noteVal);
-      if (requiresNote && !noteVal) {
-        setNotification(`Notes are required for status: ${chosen}`, true);
+      if(requiresNote && !noteVal){
+        setNotification(`Notes are required for status: ${chosen}`,true);
         return;
       }
+
       pendingStopStatus = chosen;
-      pendingNoteVal = noteVal;
+      pendingNoteVal    = noteVal;
       showConfirmModal("Are you sure you want to mark your task as " + chosen + "?");
     }
-    async function executeStopTask() {
+    async function executeStopTask(){
       try {
         const stopNow = new Date();
         const stopStr = formatDateTime(stopNow);
+
         await updateBackend(currentRowNumber, pendingStopStatus, null, stopStr, pendingNoteVal);
+
         const cTime = computeCumulativeTime(startTime, stopNow);
         const row = [
           "FALSE",
-          formatDateTime(startTime) || "",
+          formatDateTime(startTime)||"",
           stopStr,
           "",
           userFullName,
@@ -857,67 +763,68 @@
         ];
         await insertRow(TASK_DATA_URL, [row]);
         await insertRow(TASK_HISTORY_URL, [row]);
+
         showPopup("Task Successfully Stopped!<br>Time Spent: " + cTime);
-      } catch (e) {
-        setNotification("Error stopping task => " + e.message, true);
+
+      } catch(e){
+        setNotification("Error stopping task => "+e.message,true);
       } finally {
         resetScreen();
         endStopSpinner();
-        document.getElementById("startTaskBtn").style.display = "inline-block";
-        document.getElementById("startTaskBtn").innerText = "Start Task";
+        document.getElementById("startTaskBtn").style.display="inline-block";
+        document.getElementById("startTaskBtn").innerText="Start Task";
       }
     }
-    function endStopSpinner() {
-      document.getElementById("stopSpinner").style.display = "none";
-      document.querySelector(".stop-btn").style.display = "inline-block";
+    function endStopSpinner(){
+      document.getElementById("stopSpinner").style.display="none";
+      document.querySelector(".stop-btn").style.display="inline-block";
       showLoading(false);
     }
 
     /***************************************************************************** 
      * 4) ON CALL / LOGOUT
      *****************************************************************************/
-    function closeOnCall() {
-      document.getElementById("onCallModal").style.display = "none";
+    function closeOnCall(){
+      document.getElementById("onCallModal").style.display="none";
     }
-    function logout() {
+    function logout(){
       setNotification("");
       resetScreen();
       userFullName = "";
-      document.getElementById("taskScreen").style.display = "none";
-      document.getElementById("loginOverlay").style.display = "flex";
-      document.getElementById("username").value = "";
-      document.getElementById("password").value = "";
+      document.getElementById("taskScreen").style.display="none";
+      document.getElementById("loginOverlay").style.display="flex";
+      document.getElementById("username").value="";
+      document.getElementById("password").value="";
     }
   </script>
 
-  <!-- Bouncy Balls Game Script (replacing the Dino game) -->
+  <!-- Bouncy Balls Game Script (onCall) -->
   <script>
     (function() {
       const canvas = document.getElementById("dinoGameCanvas");
-      if (!canvas) return;
+      if(!canvas) return;
+      canvas.width  = 580; 
+      canvas.height = 300; 
       const ctx = canvas.getContext("2d");
-      const gameWidth = canvas.width;
-      const gameHeight = canvas.height;
       
       let gameStarted = false;
-      let gameOver = false;
-      let spawnTimer = 0;
+      let gameOver    = false;
+      let spawnTimer  = 0;
       const spawnInterval = 100;
       const gravity = 0.3;
       const jumpForce = -8;
       const ballSpeed = 3;
-      
-      // Player represented as a bouncy ball.
+
+      // Player
       const player = {
         x: 60,
-        y: gameHeight - 20,
+        y: canvas.height - 20,
         radius: 15,
         vy: 0,
         jumping: false,
       };
-      
       const obstacles = [];
-      
+
       function drawBall(ball, color) {
         ctx.beginPath();
         ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
@@ -925,48 +832,41 @@
         ctx.fill();
         ctx.closePath();
       }
-      
       function gameLoop() {
-        ctx.clearRect(0, 0, gameWidth, gameHeight);
-      
-        // Update player physics if game has started.
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Player physics if jumping
         if (player.jumping) {
           player.vy += gravity;
           player.y += player.vy;
-          if (player.y > gameHeight - player.radius) {
-            player.y = gameHeight - player.radius;
+          if (player.y > canvas.height - player.radius) {
+            player.y = canvas.height - player.radius;
             player.jumping = false;
             player.vy = 0;
           }
         }
-      
-        drawBall(player, "#3da3a3"); // Teal color for the player
-      
-        // Spawn obstacles periodically.
+        drawBall(player, "#3da3a3");
+
         spawnTimer++;
         if (spawnTimer > spawnInterval) {
           obstacles.push({
-            x: gameWidth + 30,
-            y: gameHeight - 10 - Math.random() * 40,
+            x: canvas.width + 30,
+            y: canvas.height - 10 - Math.random() * 40,
             radius: 10 + Math.random() * 10,
-            vy: 0,
+            vy: 0
           });
           spawnTimer = 0;
         }
-      
-        // Update and draw obstacles.
         for (let i = 0; i < obstacles.length; i++) {
           const obs = obstacles[i];
           obs.x -= ballSpeed;
-          obs.vy += 0.1; // slight gravity for bounciness
+          obs.vy += 0.1;
           obs.y += obs.vy;
-          if (obs.y > gameHeight - obs.radius) {
-            obs.y = gameHeight - obs.radius;
+          if (obs.y > canvas.height - obs.radius) {
+            obs.y = canvas.height - obs.radius;
             obs.vy *= -0.7;
           }
-          drawBall(obs, "#a33c3c"); // Soft red/pink color
-          
-          // Collision detection.
+          drawBall(obs, "#a33c3c");
           const dx = player.x - obs.x;
           const dy = player.y - obs.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
@@ -974,34 +874,29 @@
             gameOver = true;
           }
         }
-      
-        // Remove obstacles that are offscreen.
         while (obstacles.length && obstacles[0].x + obstacles[0].radius < 0) {
           obstacles.shift();
         }
-      
-        if (!gameOver) {
+        if(!gameOver){
           requestAnimationFrame(gameLoop);
         } else {
           ctx.fillStyle = "#333";
           ctx.font = "26px Arial";
-          ctx.fillText("Game Over!", gameWidth / 2 - 60, gameHeight / 2);
+          ctx.fillText("Game Over!", canvas.width/2 - 60, canvas.height/2);
         }
       }
-      
-      function startGame() {
-        if (!gameStarted) {
+      function startGame(){
+        if(!gameStarted){
           gameStarted = true;
           gameLoop();
         }
       }
-      
-      document.addEventListener("keydown", function(e) {
-        if (e.code === "Space") {
-          if (!gameStarted) {
+      document.addEventListener("keydown", function(e){
+        if(e.code==="Space"){
+          if(!gameStarted){
             startGame();
           }
-          if (!player.jumping && !gameOver) {
+          if(!player.jumping && !gameOver){
             player.jumping = true;
             player.vy = jumpForce;
           }
@@ -1011,15 +906,37 @@
     })();
   </script>
 
-  <!-- Floating Briefcase Animation for Task Screen -->
+  <!-- Bouncing Briefcase Script for #floatingBriefcase -->
   <script>
-    // This script will run to animate the floating briefcase.
     (function() {
       const briefcase = document.getElementById("floatingBriefcase");
-      if (!briefcase) return;
-      // The CSS @keyframes (floatBriefcase) defined in the stylesheet handles the movement.
-      // No additional JavaScript is needed unless you want to add more interactivity.
+      const container = document.getElementById("centerContainer");
+      if (!briefcase || !container) return;
+
+      let x = 20, y = 20;   // initial positions
+      let vx = 0.4, vy = 0.3; // slow speeds
+      const iconSize = 50; // font-size is 50px
+
+      function animateBriefcase() {
+        const rect = container.getBoundingClientRect();
+        // container's width/height
+        const containerWidth  = rect.width;
+        const containerHeight = rect.height;
+
+        // if hits boundary, bounce
+        if (x + iconSize >= containerWidth || x <= 0) vx *= -1;
+        if (y + iconSize >= containerHeight || y <= 0) vy *= -1;
+
+        x += vx; 
+        y += vy;
+        briefcase.style.left = x + "px";
+        briefcase.style.top  = y + "px";
+
+        requestAnimationFrame(animateBriefcase);
+      }
+      requestAnimationFrame(animateBriefcase);
     })();
   </script>
+
 </body>
 </html>
