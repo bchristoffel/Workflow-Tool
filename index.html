@@ -23,7 +23,7 @@
       display: none;
       align-items: center;
       justify-content: center;
-      background-color: rgba(0,0,0,0.4);
+      background-color: rgba(0, 0, 0, 0.4);
       z-index: 9999;
     }
     #loadingOverlay .loadingContent {
@@ -61,18 +61,18 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(ellipse at center, rgba(20,30,60,0.15) 0%, rgba(20,40,70,0.8) 70%, rgba(20,40,70,1) 100%),
+      background: radial-gradient(ellipse at center, rgba(20, 30, 60, 0.15) 0%, rgba(20, 40, 70, 0.8) 70%, rgba(20, 40, 70, 1) 100%),
                   url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1350&q=80')
                   no-repeat center center fixed;
       background-size: cover;
       z-index: 1000;
     }
     .login-container {
-      background: rgba(255,255,255,0.94);
+      background: rgba(255, 255, 255, 0.94);
       width: 360px;
       padding: 30px;
       border-radius: 14px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
       text-align: center;
     }
     .login-header {
@@ -136,12 +136,13 @@
       display: none;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      /* Soft minty dynamic background */
+      background: linear-gradient(135deg, #e0f7f1, #c0e7d9);
       position: relative;
       overflow: auto;
       z-index: 1;
     }
-    /* Center the greeting and Start Task button vertically */
+    /* Center container with greeting, start button, and a bouncing briefcase icon */
     #centerContainer {
       display: flex;
       flex-direction: column;
@@ -149,6 +150,22 @@
       justify-content: center;
       height: 80vh;
       margin: 0 auto;
+      position: relative;
+    }
+    /* Floating briefcase icon */
+    #floatingBriefcase {
+      position: absolute;
+      pointer-events: none;
+      font-size: 50px;
+      color: rgba(0, 0, 0, 0.15);
+      animation: floatBriefcase 15s ease-in-out infinite;
+    }
+    @keyframes floatBriefcase {
+      0%   { top: 10%; left: 10%; }
+      25%  { top: 20%; left: 70%; }
+      50%  { top: 50%; left: 40%; }
+      75%  { top: 80%; left: 60%; }
+      100% { top: 70%; left: 20%; }
     }
     #greeting {
       margin: 0 0 20px;
@@ -165,13 +182,13 @@
     .details-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 5px;
       max-width: 800px;
-      margin: 0 auto;
+      margin: 10px auto; /* Reduced margin */
       background: #fff;
-      padding: 20px;
+      padding: 10px; /* Reduced padding */
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     @media (max-width: 600px) {
       .details-grid { grid-template-columns: 1fr; }
@@ -191,18 +208,11 @@
       margin-top: 20px;
     }
 
-    /* Associate Notes - Always Visible and Centered */
+    /* Associate Notes - Removed title, just the text box */
     .notes-container {
       width: 80%;
       margin: 16px auto;
       text-align: left;
-    }
-    .notes-label {
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 4px;
-      display: block;
-      color: #333;
     }
     #notes {
       display: block;
@@ -240,7 +250,7 @@
       animation: spin 0.8s linear infinite;
     }
 
-    /* ON CALL MODAL (with Inline Dino Game) */
+    /* ON CALL MODAL (with Inline Bouncy Balls Game) */
     #onCallModal {
       display: none;
       position: fixed;
@@ -250,7 +260,7 @@
       background: white;
       padding: 20px;
       border-radius: 14px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
       text-align: center;
       width: 600px;
       max-width: 90vw;
@@ -262,12 +272,11 @@
       font-size: 20px;
       color: #1d3330;
     }
-    /* Inline Dino game on canvas */
     #dinoGameCanvas {
-      border: 1px solid #ccc;
-      background: #fff;
-      margin: 0 auto;
       display: block;
+      margin: 0 auto;
+      border: 1px solid #ccc;
+      background: #e0f7f1;
     }
     #onCallModal p {
       line-height: 1.4;
@@ -289,14 +298,14 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: white;
+      background: #fafafa;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
       z-index: 3000;
       display: none;
       text-align: center;
-      max-width: 90%;
+      max-width: 400px;
     }
     #popupModal button {
       margin-top: 10px;
@@ -308,20 +317,20 @@
       cursor: pointer;
     }
 
-    /* CONFIRM MODAL for Stop Task Confirmation */
+    /* CONFIRM MODAL for Stop Task Confirmation: Shorter & Wider */
     #confirmModal {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+      background: #fff;
+      padding: 15px 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
       z-index: 3000;
       display: none;
       text-align: center;
-      max-width: 90%;
+      max-width: 400px;
     }
     #confirmModal button {
       margin: 5px;
@@ -336,7 +345,7 @@
       background: #9adee6;
     }
 
-    /* Logout link (bottom, centered) */
+    /* Logout link: Fixed to bottom center */
     .logout-link {
       position: fixed;
       bottom: 10px;
@@ -350,6 +359,7 @@
       background: #f0f0f0;
       padding: 5px 10px;
       border-radius: 4px;
+      z-index: 5000;
     }
     .logout-link:hover {
       color: #00796b;
@@ -387,10 +397,13 @@
   <div id="taskScreen">
     <div id="notificationBar"></div>
     <div id="centerContainer">
+      <div id="briefcaseIcon"><i class="fa-solid fa-briefcase"></i></div>
       <h2 id="greeting"></h2>
       <button id="startTaskBtn" onclick="startTaskClicked()">Start Task</button>
+      <!-- Floating briefcase that bounces around -->
+      <div id="floatingBriefcase"><i class="fa-solid fa-briefcase"></i></div>
     </div>
-    <div id="taskDetail" style="margin-top:20px;"></div>
+    <div id="taskDetail" style="margin-top:10px;"></div>
     <div id="statusOptions">
       <div class="status-container">
         <label>
@@ -406,9 +419,8 @@
           Completed
         </label>
       </div>
-      <!-- Always visible Associate Notes -->
+      <!-- Removed the Associate Notes title -->
       <div class="notes-container">
-        <label for="notes" class="notes-label">Associate Notes</label>
         <textarea id="notes" placeholder="Associate Notes"></textarea>
       </div>
       <div class="stop-task-container">
@@ -419,11 +431,11 @@
     <span class="logout-link" onclick="logout()">Log Out</span>
   </div>
 
-  <!-- ON CALL MODAL (with Inline Dino Game) -->
+  <!-- ON CALL MODAL -->
   <div id="onCallModal">
     <h3>
-      On Call: Enjoy the Dino game while you wait.<br>
-      Please refresh every five minutes.
+      On Call: Please refresh every five minutes.<br>
+      If you are still On Call after 15 minutes, please reach out to your Lead.
     </h3>
     <canvas id="dinoGameCanvas" width="600" height="400"></canvas>
     <p style="line-height:1.4;">
@@ -449,7 +461,7 @@
     /***************************************************************************** 
      * FRONT-END CONFIG / GLOBALS
      *****************************************************************************/
-    const BASE_URL = "https://my-api.bchristoffel02.workers.dev"; // <== Your Worker domain
+    const BASE_URL = "https://my-api.bchristoffel02.workers.dev"; // Your Worker domain
     const TASK_DATA_URL = BASE_URL + "/taskData";
     const TASK_HISTORY_URL = BASE_URL + "/taskHistory";
     const LASALLE_POD_URL = BASE_URL + "/lasallePod";
@@ -457,18 +469,18 @@
     const GET_BACKEND_URL = BASE_URL + "/backend";
     const UPDATE_BACKEND_URL = BASE_URL + "/updateBackend";
 
-    const HARDCODED_PASS = "abc123"; // demonstration only
+    const HARDCODED_PASS = "abc123"; // demo only
 
     let userFullName = "";
     let currentTask = null;
     let startTime = null;
     let currentRowNumber = null; // row index in "Backend"
 
-    // To hold pending stop data for confirmation
+    // For confirmation modal
     let pendingStopStatus = "";
     let pendingNoteVal = "";
 
-    // Global variable for refresh reminder interval (in milliseconds)
+    // Refresh reminder interval
     let refreshReminderInterval = null;
 
     /***************************************************************************** 
@@ -485,47 +497,40 @@
       bar.style.color = isError ? "red" : "#0f5132";
       bar.innerText = msg;
     }
-
     function highlightInput(id, shouldHighlight) {
       const el = document.getElementById(id);
       if (!el) return;
       if (shouldHighlight) el.classList.add("input-error");
       else el.classList.remove("input-error");
     }
-
     function showLoading(show) {
-      // If a popup is visible, hide loading overlay.
       if (document.getElementById("popupModal").style.display === "block") {
         document.getElementById("loadingOverlay").style.display = "none";
         return;
       }
       document.getElementById("loadingOverlay").style.display = show ? "flex" : "none";
     }
-
     function formatDateTime(d) {
       if (!(d instanceof Date)) return "";
       const pad = n => (n < 10 ? "0" + n : "" + n);
       const mm = pad(d.getMonth() + 1),
-        dd = pad(d.getDate()),
-        yy = d.getFullYear();
+            dd = pad(d.getDate()),
+            yy = d.getFullYear();
       const hh = pad(d.getHours()),
-        mn = pad(d.getMinutes()),
-        sc = pad(d.getSeconds());
+            mn = pad(d.getMinutes()),
+            sc = pad(d.getSeconds());
       return `${mm}/${dd}/${yy} ${hh}:${mn}:${sc}`;
     }
-
     function computeCumulativeTime(st, sp) {
       if (!st || !sp) return "";
       const diff = sp - st;
       const sec = Math.floor(diff / 1000);
       const h = Math.floor(sec / 3600),
-        m = Math.floor((sec % 3600) / 60),
-        s = sec % 60;
+            m = Math.floor((sec % 3600) / 60),
+            s = sec % 60;
       const pad = n => (n < 10 ? "0" + n : "" + n);
       return `${h}:${pad(m)}:${pad(s)}`;
     }
-
-    /** Insert row into Task Data or Task History */
     async function insertRow(url, rowArr) {
       const resp = await fetch(url, {
         method: "POST",
@@ -538,10 +543,6 @@
       }
       return resp.json();
     }
-
-    /**
-     * Partial update for Backend sheet.
-     */
     async function updateBackend(rowNumber, newStatus, startTime, stopTime, notes) {
       const payload = { rowNumber };
       if (newStatus) payload.newStatus = newStatus;
@@ -559,8 +560,6 @@
       }
       return resp.json();
     }
-
-    /** Read questionAssociates for a given client name */
     async function findDirectQuestion(clientName) {
       if (!clientName) return "";
       try {
@@ -582,7 +581,6 @@
         return "";
       }
     }
-
     function resetScreen() {
       document.getElementById("statusOptions").style.display = "none";
       document.getElementById("notes").value = "";
@@ -592,7 +590,6 @@
       currentRowNumber = null;
       document.getElementById("taskDetail").innerHTML = "";
     }
-
     function checkEnter(e) {
       if (e.key === "Enter") login();
     }
@@ -601,12 +598,10 @@
      * POPUP MODAL FUNCTIONS
      *****************************************************************************/
     function showPopup(message) {
-      // Hide loading overlay when showing popup.
       document.getElementById("loadingOverlay").style.display = "none";
       document.getElementById("popupMessage").innerHTML = message;
       document.getElementById("popupModal").style.display = "block";
     }
-
     function closePopup() {
       document.getElementById("popupModal").style.display = "none";
     }
@@ -618,11 +613,9 @@
       document.getElementById("confirmMessage").innerHTML = message;
       document.getElementById("confirmModal").style.display = "block";
     }
-
     function hideConfirmModal() {
       document.getElementById("confirmModal").style.display = "none";
     }
-
     function confirmStop() {
       hideConfirmModal();
       document.getElementById("stopSpinner").style.display = "block";
@@ -630,7 +623,6 @@
       showLoading(true);
       executeStopTask();
     }
-
     function cancelStop() {
       hideConfirmModal();
       document.getElementById("stopSpinner").style.display = "none";
@@ -695,11 +687,9 @@
     function startTaskClicked() {
       setNotification("");
       document.getElementById("startTaskBtn").style.display = "none";
-      // Show loading overlay until task details are fully rendered.
       showLoading(true);
       loadReadyTaskFromBackend();
     }
-
     async function loadReadyTaskFromBackend() {
       try {
         const res = await fetch(GET_BACKEND_URL);
@@ -735,9 +725,7 @@
           setNotification("");
           document.getElementById("startTaskBtn").style.display = "inline-block";
           document.getElementById("startTaskBtn").innerText = "Refresh";
-          // Show the on-call modal with the inline Dino game.
           document.getElementById("onCallModal").style.display = "block";
-          // Start a refresh reminder popup every 5 minutes.
           if (!refreshReminderInterval) {
             refreshReminderInterval = setInterval(() => {
               showPopup("Please refresh to check for new tasks.");
@@ -785,7 +773,6 @@
         setNotification("Error => " + e.message, true);
       }
     }
-
     function convertRowToObj(rowArr, headers) {
       const obj = {};
       headers.forEach((hdr, i) => {
@@ -793,7 +780,6 @@
       });
       return obj;
     }
-
     async function displayTaskDetails(task) {
       if (!task) {
         document.getElementById("taskDetail").innerHTML = "<p>No task found.</p>";
@@ -843,7 +829,6 @@
       pendingNoteVal = noteVal;
       showConfirmModal("Are you sure you want to mark your task as " + chosen + "?");
     }
-
     async function executeStopTask() {
       try {
         const stopNow = new Date();
@@ -882,7 +867,6 @@
         document.getElementById("startTaskBtn").innerText = "Start Task";
       }
     }
-
     function endStopSpinner() {
       document.getElementById("stopSpinner").style.display = "none";
       document.querySelector(".stop-btn").style.display = "inline-block";
@@ -895,7 +879,6 @@
     function closeOnCall() {
       document.getElementById("onCallModal").style.display = "none";
     }
-
     function logout() {
       setNotification("");
       resetScreen();
@@ -907,9 +890,8 @@
     }
   </script>
 
-  <!-- Inline Dino Game Script for On Call Modal -->
+  <!-- Bouncy Balls Game Script (replacing the Dino game) -->
   <script>
-    // A simple canvas-based endless runner similar in spirit to the Chrome Dino game.
     (function() {
       const canvas = document.getElementById("dinoGameCanvas");
       if (!canvas) return;
@@ -917,101 +899,126 @@
       const gameWidth = canvas.width;
       const gameHeight = canvas.height;
       
-      // Dino properties
-      const dino = { x: 50, y: gameHeight - 50, width: 40, height: 40, vy: 0, jumping: false };
-      const gravity = 0.6;
-      const jumpForce = -12;
-      const obstacles = [];
+      let gameStarted = false;
+      let gameOver = false;
       let spawnTimer = 0;
       const spawnInterval = 100;
-      const gameSpeed = 3;
-      let gameOver = false;
+      const gravity = 0.3;
+      const jumpForce = -8;
+      const ballSpeed = 3;
+      
+      // Player represented as a bouncy ball.
+      const player = {
+        x: 60,
+        y: gameHeight - 20,
+        radius: 15,
+        vy: 0,
+        jumping: false,
+      };
+      
+      const obstacles = [];
+      
+      function drawBall(ball, color) {
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.closePath();
+      }
       
       function gameLoop() {
         ctx.clearRect(0, 0, gameWidth, gameHeight);
-        
-        // Draw Dino
-        ctx.fillStyle = "green";
-        ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
-        
-        // Dino physics
-        if (dino.jumping) {
-          dino.vy += gravity;
-          dino.y += dino.vy;
-          if (dino.y > gameHeight - dino.height) {
-            dino.y = gameHeight - dino.height;
-            dino.jumping = false;
-            dino.vy = 0;
+      
+        // Update player physics if game has started.
+        if (player.jumping) {
+          player.vy += gravity;
+          player.y += player.vy;
+          if (player.y > gameHeight - player.radius) {
+            player.y = gameHeight - player.radius;
+            player.jumping = false;
+            player.vy = 0;
           }
         }
-        
-        // Spawn obstacles periodically
+      
+        drawBall(player, "#3da3a3"); // Teal color for the player
+      
+        // Spawn obstacles periodically.
         spawnTimer++;
         if (spawnTimer > spawnInterval) {
           obstacles.push({
-            x: gameWidth,
-            y: gameHeight - 30,
-            width: 20 + Math.random() * 20,
-            height: 30
+            x: gameWidth + 30,
+            y: gameHeight - 10 - Math.random() * 40,
+            radius: 10 + Math.random() * 10,
+            vy: 0,
           });
           spawnTimer = 0;
         }
-        
-        // Draw obstacles and check for collisions
+      
+        // Update and draw obstacles.
         for (let i = 0; i < obstacles.length; i++) {
           const obs = obstacles[i];
-          obs.x -= gameSpeed;
-          ctx.fillStyle = "red";
-          ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+          obs.x -= ballSpeed;
+          obs.vy += 0.1; // slight gravity for bounciness
+          obs.y += obs.vy;
+          if (obs.y > gameHeight - obs.radius) {
+            obs.y = gameHeight - obs.radius;
+            obs.vy *= -0.7;
+          }
+          drawBall(obs, "#a33c3c"); // Soft red/pink color
           
-          // Collision detection
-          if (dino.x < obs.x + obs.width &&
-              dino.x + dino.width > obs.x &&
-              dino.y < obs.y + obs.height &&
-              dino.y + dino.height > obs.y) {
+          // Collision detection.
+          const dx = player.x - obs.x;
+          const dy = player.y - obs.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < player.radius + obs.radius) {
             gameOver = true;
           }
         }
-        
-        // Remove offscreen obstacles
-        while (obstacles.length && obstacles[0].x + obstacles[0].width < 0) {
+      
+        // Remove obstacles that are offscreen.
+        while (obstacles.length && obstacles[0].x + obstacles[0].radius < 0) {
           obstacles.shift();
         }
-        
+      
         if (!gameOver) {
           requestAnimationFrame(gameLoop);
         } else {
-          ctx.fillStyle = "black";
-          ctx.font = "30px Arial";
-          ctx.fillText("Game Over!", gameWidth / 2 - 70, gameHeight / 2);
+          ctx.fillStyle = "#333";
+          ctx.font = "26px Arial";
+          ctx.fillText("Game Over!", gameWidth / 2 - 60, gameHeight / 2);
+        }
+      }
+      
+      function startGame() {
+        if (!gameStarted) {
+          gameStarted = true;
+          gameLoop();
         }
       }
       
       document.addEventListener("keydown", function(e) {
         if (e.code === "Space") {
-          if (!dino.jumping && !gameOver) {
-            dino.jumping = true;
-            dino.vy = jumpForce;
+          if (!gameStarted) {
+            startGame();
+          }
+          if (!player.jumping && !gameOver) {
+            player.jumping = true;
+            player.vy = jumpForce;
           }
           e.preventDefault();
         }
-        // Restart the game by pressing R if it's over
-        if (e.code === "KeyR" && gameOver) {
-          restartGame();
-        }
       });
-      
-      function restartGame() {
-        dino.y = gameHeight - dino.height;
-        dino.vy = 0;
-        dino.jumping = false;
-        obstacles.length = 0;
-        spawnTimer = 0;
-        gameOver = false;
-        gameLoop();
-      }
-      
-      gameLoop();
+    })();
+  </script>
+
+  <!-- Floating Briefcase Animation for Task Screen -->
+  <script>
+    // This script will run to animate the floating briefcase.
+    (function() {
+      const briefcase = document.getElementById("floatingBriefcase");
+      if (!briefcase) return;
+      // The CSS @keyframes (floatBriefcase) defined in the stylesheet handles the movement.
+      // No additional JavaScript is needed unless you want to add more interactivity.
     })();
   </script>
 </body>
