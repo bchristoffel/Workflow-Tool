@@ -136,7 +136,6 @@
       display: none;
       width: 100%;
       height: 100%;
-      /* Modern, cool gradient background */
       background: linear-gradient(135deg, #89f7fe, #66a6ff);
       position: relative;
       overflow: auto;
@@ -263,7 +262,7 @@
       font-size: 20px;
       color: #1d3330;
     }
-    /* Replace the external Dino game with an inline canvas game */
+    /* Inline Dino game on canvas */
     #dinoGameCanvas {
       border: 1px solid #ccc;
       background: #fff;
@@ -308,7 +307,7 @@
       color: #00332d;
       cursor: pointer;
     }
-    
+
     /* CONFIRM MODAL for Stop Task Confirmation */
     #confirmModal {
       position: fixed;
@@ -336,7 +335,7 @@
     #confirmModal button:hover {
       background: #9adee6;
     }
-    
+
     /* Logout link (bottom, centered) */
     .logout-link {
       position: fixed;
@@ -495,7 +494,7 @@
     }
 
     function showLoading(show) {
-      // If a popup is currently visible, do not show the loading overlay.
+      // If a popup is visible, hide loading overlay.
       if (document.getElementById("popupModal").style.display === "block") {
         document.getElementById("loadingOverlay").style.display = "none";
         return;
@@ -541,7 +540,7 @@
     }
 
     /**
-     * Partial update to set specified columns in the "Backend" tab.
+     * Partial update for Backend sheet.
      */
     async function updateBackend(rowNumber, newStatus, startTime, stopTime, notes) {
       const payload = { rowNumber };
@@ -696,7 +695,7 @@
     function startTaskClicked() {
       setNotification("");
       document.getElementById("startTaskBtn").style.display = "none";
-      // Show loading overlay until task details are rendered.
+      // Show loading overlay until task details are fully rendered.
       showLoading(true);
       loadReadyTaskFromBackend();
     }
@@ -727,20 +726,18 @@
           const assoc = (rowArr[assocIdx] || "").trim().toLowerCase();
           const stat = (rowArr[statIdx] || "").trim().toLowerCase();
           if (assoc === userFullName.toLowerCase() && stat === "ready") {
-            currentRowNumber = i + 2; // row index (header is row1)
+            currentRowNumber = i + 2;
             found = rowArr;
             break;
           }
         }
         if (!found) {
-          // Clear any previous notification.
           setNotification("");
-          // Set Start Task button to "Refresh"
           document.getElementById("startTaskBtn").style.display = "inline-block";
           document.getElementById("startTaskBtn").innerText = "Refresh";
-          // Show the on-call modal (with the inline Dino game)
+          // Show the on-call modal with the inline Dino game.
           document.getElementById("onCallModal").style.display = "block";
-          // Start a reminder popup every 5 minutes advising refresh.
+          // Start a refresh reminder popup every 5 minutes.
           if (!refreshReminderInterval) {
             refreshReminderInterval = setInterval(() => {
               showPopup("Please refresh to check for new tasks.");
@@ -749,7 +746,6 @@
           showLoading(false);
           return;
         }
-        // A task was found; clear refresh reminders.
         if (refreshReminderInterval) {
           clearInterval(refreshReminderInterval);
           refreshReminderInterval = null;
@@ -757,9 +753,7 @@
         currentTask = convertRowToObj(found, headers);
         startTime = new Date();
         const startStr = formatDateTime(startTime);
-        // Partial update: set column B= startStr, column F= "Started"
         await updateBackend(currentRowNumber, "Started", startStr, null, null);
-        // Insert row into Task Data & Task History with "Started" status.
         const row = [
           "FALSE",
           startStr,
@@ -784,7 +778,6 @@
         await insertRow(TASK_HISTORY_URL, [row]);
         displayTaskDetails(currentTask);
         document.getElementById("statusOptions").style.display = "block";
-        // Remove the loading overlay only after task details are rendered.
         showLoading(false);
       } catch (e) {
         showLoading(false);
@@ -916,7 +909,7 @@
 
   <!-- Inline Dino Game Script for On Call Modal -->
   <script>
-    // Simple canvas-based endless runner similar to the Chrome Dino game.
+    // A simple canvas-based endless runner similar in spirit to the Chrome Dino game.
     (function() {
       const canvas = document.getElementById("dinoGameCanvas");
       if (!canvas) return;
@@ -925,20 +918,12 @@
       const gameHeight = canvas.height;
       
       // Dino properties
-      const dino = {
-        x: 50,
-        y: gameHeight - 50,
-        width: 40,
-        height: 40,
-        vy: 0,
-        jumping: false
-      };
-      
+      const dino = { x: 50, y: gameHeight - 50, width: 40, height: 40, vy: 0, jumping: false };
       const gravity = 0.6;
       const jumpForce = -12;
       const obstacles = [];
       let spawnTimer = 0;
-      const spawnInterval = 100; // frames
+      const spawnInterval = 100;
       const gameSpeed = 3;
       let gameOver = false;
       
@@ -1010,14 +995,13 @@
           }
           e.preventDefault();
         }
-        // Allow restart if game is over by pressing R
+        // Restart the game by pressing R if it's over
         if (e.code === "KeyR" && gameOver) {
           restartGame();
         }
       });
       
       function restartGame() {
-        // Reset dino, obstacles and gameOver flag
         dino.y = gameHeight - dino.height;
         dino.vy = 0;
         dino.jumping = false;
@@ -1027,7 +1011,6 @@
         gameLoop();
       }
       
-      // Start the game loop on load
       gameLoop();
     })();
   </script>
