@@ -6,176 +6,162 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* ====================== GLOBAL / LAYOUT ====================== */
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
     html, body {
-      margin: 0;  padding: 0;
+      margin: 0;
+      padding: 0;
       height: 100%;
       font-family: 'Segoe UI', sans-serif;
     }
-    /* loading overlay */
+    /* Loading Overlay */
     #loadingOverlay {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: none; align-items: center; justify-content: center;
-      background-color: rgba(0,0,0,0.4);
-      z-index: 9999;
+      position: fixed; top:0; left:0;
+      width:100%; height:100%;
+      display:none; align-items:center; justify-content:center;
+      background: rgba(0,0,0,0.4);
+      z-index:9999;
     }
     #loadingOverlay .loadingContent {
-      background: white;
-      padding: 30px 50px;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 18px;  color: #333;
-      display: flex;  flex-direction: column;  align-items: center;
+      background:#fff; padding:30px 50px; border-radius:8px;
+      text-align:center; font-size:18px; color:#333;
+      display:flex; flex-direction:column; align-items:center;
     }
     .bigSpinner {
-      width: 40px; height: 40px;
-      border: 5px solid #f3f3f3; border-top: 5px solid #333;
-      border-radius: 50%;
-      animation: spin 0.9s linear infinite;
-      margin-bottom: 15px;
+      width:40px; height:40px; border:5px solid #f3f3f3; border-top:5px solid #333;
+      border-radius:50%; animation:spin 0.9s linear infinite; margin-bottom:15px;
     }
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100%{ transform: rotate(360deg); }
+      0%{ transform:rotate(0deg); }
+      100%{ transform:rotate(360deg); }
     }
 
     /* ====================== LOGIN OVERLAY ====================== */
     #loginOverlay {
-      position: absolute; top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
+      position:absolute; top:0; left:0; width:100%; height:100%;
+      display:flex; align-items:center; justify-content:center;
       background:
         radial-gradient(ellipse at center, rgba(20,30,60,0.15) 0%, rgba(20,40,70,0.8) 70%, rgba(20,40,70,1) 100%),
         url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1350&q=80')
           no-repeat center center fixed;
-      background-size: cover;
-      z-index: 1000;
+      background-size:cover; z-index:1000;
     }
     .login-container {
       background: rgba(255,255,255,0.94);
-      width: 360px;  padding: 30px;
-      border-radius: 14px;  box-shadow: 0 10px 28px rgba(0,0,0,0.25);
-      text-align: center;
+      width:360px; padding:30px; border-radius:14px; box-shadow:0 10px 28px rgba(0,0,0,0.25);
+      text-align:center;
     }
     .login-header {
-      display: flex;  align-items: center;  justify-content: center;
-      font-size: 24px;  color: #0d3b66;  margin-bottom: 24px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:24px; color:#0d3b66; margin-bottom:24px;
     }
     .login-header i {
-      margin-left: 8px;  font-size: 24px;  color: #000;
+      margin-left:8px; font-size:24px; color:#000;
     }
     input, button {
-      width: 100%;  padding: 10px;  border-radius: 4px;  margin-top: 10px;
-      font-size: 15px;  font-family: 'Segoe UI', sans-serif;
+      width:100%; padding:10px; border-radius:4px; margin-top:10px;
+      font-size:15px; font-family:'Segoe UI', sans-serif;
     }
     input {
-      border: 1px solid #ccc;  transition: border 0.2s;
+      border:1px solid #ccc; transition:border 0.2s;
     }
-    .input-error { border-color: red !important; }
+    .input-error { border-color:red !important; }
     button {
-      border: none;  background: #b2ebf2;  color: #00332d;  font-weight: 600;  cursor: pointer;
+      border:none; background:#b2ebf2; color:#00332d; font-weight:600; cursor:pointer;
     }
-    button:hover { background: #9adee6; }
+    button:hover { background:#9adee6; }
     #loginSpinner {
-      display: none;  text-align: center;  margin-top: 20px;
+      display:none; text-align:center; margin-top:20px;
     }
     #loginSpinner .dot {
-      display: inline-block;  width: 8px;  height: 8px;  margin: 3px;  background-color: #333;
-      border-radius: 50%;
-      animation: wave 1.2s infinite ease-in-out;
+      display:inline-block; width:8px; height:8px; margin:3px; background:#333;
+      border-radius:50%; animation:wave 1.2s infinite ease-in-out;
     }
-    #loginSpinner .dot:nth-child(1){ animation-delay: 0s; }
-    #loginSpinner .dot:nth-child(2){ animation-delay: 0.12s; }
-    #loginSpinner .dot:nth-child(3){ animation-delay: 0.24s; }
+    #loginSpinner .dot:nth-child(1){ animation-delay:0s; }
+    #loginSpinner .dot:nth-child(2){ animation-delay:0.12s; }
+    #loginSpinner .dot:nth-child(3){ animation-delay:0.24s; }
     @keyframes wave {
-      0%, 60%, 100% { transform: translateY(0); }
-      30% { transform: translateY(-8px); }
+      0%, 60%, 100%{ transform:translateY(0); }
+      30%{ transform:translateY(-8px); }
     }
 
     /* ====================== MAIN TASK SCREEN ====================== */
     #taskScreen {
-      display: none;  width: 100%;  height: 100%;
-      background-color: #f0f0f0;  padding: 20px;
-      position: relative;  overflow: auto;  z-index: 1;
+      display:none; width:100%; height:100%; background:#f0f0f0; padding:20px;
+      position:relative; overflow:auto; z-index:1;
     }
     #notificationBar {
-      display: none;  width: 100%;  text-align: center;  font-weight: 600;
-      padding: 8px 0;  margin-bottom: 10px;
+      display:none; width:100%; text-align:center; font-weight:600;
+      padding:8px 0; margin-bottom:10px;
     }
     #centerContainer {
-      display: flex;  flex-direction: column;  align-items: center;
-      margin: 20px auto;
+      display:flex; flex-direction:column; align-items:center; margin:20px auto;
     }
     #greeting {
-      margin: 0 0 20px;  font-size: 22px;  color: #1d3330;
+      margin:0 0 20px; font-size:22px; color:#1d3330;
     }
     #startTaskBtn {
-      width: 240px;  height: 45px;  font-size: 16px;
+      width:240px; height:45px; font-size:16px;
     }
 
     .details-grid {
-      display: grid;  grid-template-columns: 1fr 1fr;  gap: 10px;
-      max-width: 800px;  margin: 0 auto;  background: #fff;  padding: 20px;
-      border-radius: 8px;  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display:grid; grid-template-columns:1fr 1fr; gap:10px;
+      max-width:800px; margin:0 auto; background:#fff; padding:20px; border-radius:8px;
+      box-shadow:0 2px 4px rgba(0,0,0,0.1);
     }
-    @media (max-width: 600px) {
-      .details-grid { grid-template-columns: 1fr; }
+    @media (max-width:600px) {
+      .details-grid { grid-template-columns:1fr; }
     }
 
     /* STOP TASK area */
     #statusOptions {
-      display: none;  margin: 20px auto;  max-width: 800px;  text-align: center;
+      display:none; margin:20px auto; max-width:800px; text-align:center;
     }
     .status-container {
-      display: flex;  justify-content: center;  gap: 20px;  margin-top: 20px;
+      display:flex; justify-content:center; gap:20px; margin-top:20px;
     }
     #notes {
-      display: none;  width: 80%;  margin: 0 auto;  height: 50px;
-      margin-top: 8px;  border: 1px solid #ccc;  border-radius: 4px;
-      padding: 8px;  font-size: 14px;  font-family: 'Segoe UI', sans-serif;
-      transition: border 0.2s;
+      display:none; width:80%; margin:0 auto; height:50px;
+      margin-top:8px; border:1px solid #ccc; border-radius:4px; padding:8px;
+      font-size:14px; transition:border 0.2s;
     }
-    .stop-task-container { margin-top: 20px; }
+    .stop-task-container { margin-top:20px; }
     .stop-btn {
-      width: 150px;  height: 40px;  font-size: 15px;  font-weight: 600;
-      background: #b2ebf2;  color: #00332d;  cursor: pointer;  border: none;  border-radius: 4px;
+      width:150px; height:40px; font-size:15px; font-weight:600;
+      background:#b2ebf2; color:#00332d; cursor:pointer; border:none; border-radius:4px;
     }
-    .stop-btn:hover { background: #9adee6; }
+    .stop-btn:hover { background:#9adee6; }
     #stopSpinner {
-      display: none;  margin: 10px auto;  width: 30px; height: 30px;
-      border: 4px solid #f3f3f3;  border-top: 4px solid #333;  border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      display:none; margin:10px auto; width:30px; height:30px;
+      border:4px solid #f3f3f3; border-top:4px solid #333; border-radius:50%;
+      animation:spin 0.8s linear infinite;
     }
 
-    /* ====================== ON CALL MODAL ====================== */
+    /* ON CALL MODAL */
     #onCallModal {
-      display: none;  position: fixed;  top: 50%;  left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;  padding: 20px;  border-radius: 14px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.25);
-      text-align: center;  width: 600px;  max-width: 90vw;
-      font-family: 'Segoe UI', sans-serif;
-      z-index: 2000;
+      display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+      background:#fff; padding:20px; border-radius:14px; box-shadow:0 10px 28px rgba(0,0,0,0.25);
+      text-align:center; width:600px; max-width:90vw; font-family:'Segoe UI',sans-serif;
+      z-index:2000;
     }
     iframe {
-      width: 100%;  height: 400px;  border: none;
+      width:100%; height:400px; border:none;
     }
 
     /* logout link (bottom, centered) */
     .logout-link {
-      position: fixed;  bottom: 10px;  left: 50%;
-      transform: translateX(-50%);
-      color: #00332d;  text-decoration: underline;  cursor: pointer;
-      font-weight: 600;  font-size: 14px;
-      background: #f0f0f0;  padding: 5px 10px;  border-radius: 4px;
+      position:fixed; bottom:10px; left:50%; transform:translateX(-50%);
+      color:#00332d; text-decoration:underline; cursor:pointer; font-weight:600; font-size:14px;
+      background:#f0f0f0; padding:5px 10px; border-radius:4px;
     }
     .logout-link:hover {
-      color: #00796b;
+      color:#00796b;
     }
+
     @keyframes spin {
-      0%   { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0%  { transform:rotate(0deg); }
+      100%{ transform:rotate(360deg); }
     }
   </style>
 </head>
@@ -233,10 +219,7 @@
       </label>
     </div>
 
-    <textarea
-      id="notes"
-      placeholder="Associate Notes">
-    </textarea>
+    <textarea id="notes" placeholder="Associate Notes"></textarea>
 
     <div class="stop-task-container">
       <button class="stop-btn" onclick="stopTask()">Stop Task</button>
@@ -264,24 +247,26 @@
 /***************************************************************************** 
  * FRONT-END CONFIG / GLOBALS
  *****************************************************************************/
-const BASE_URL           = "https://my-api.bchristoffel02.workers.dev"; // your Worker domain
-const GET_BACKEND_URL    = `${BASE_URL}/backend`;        // /backend?associate=...
-const TASK_DATA_URL      = `${BASE_URL}/taskData`;
-const TASK_HISTORY_URL   = `${BASE_URL}/taskHistory`;
-const LASALLE_POD_URL    = `${BASE_URL}/lasallePod`;
-const QUESTION_ASSOC_URL = `${BASE_URL}/questionAssociates`;
-const UPDATE_BACKEND_URL = `${BASE_URL}/updateBackend`;
+const BASE_URL          = "https://my-api.bchristoffel02.workers.dev"; 
+const GET_BACKEND_URL   = BASE_URL + "/backend";
+const TASK_DATA_URL     = BASE_URL + "/taskData";
+const TASK_HISTORY_URL  = BASE_URL + "/taskHistory";
+const LASALLE_POD_URL   = BASE_URL + "/lasallePod";
+const QUESTION_ASSOC_URL= BASE_URL + "/questionAssociates";
+const UPDATE_BACKEND_URL= BASE_URL + "/updateBackend";
 
-const LOGIN_USER_URL     = `${BASE_URL}/loginUser`;
-const LOGOUT_USER_URL    = `${BASE_URL}/logoutUser`;
-const ACTIVE_USERS_URL   = `${BASE_URL}/activeUsers`;
-
-const HARDCODED_PASS = "abc123"; // demonstration only
+const HARDCODED_PASS = "abc123";
 
 let userFullName    = "";
 let currentTask     = null;
 let startTime       = null;
-let currentRowNumber= null; // We'll store the row from "Backend"
+let currentRowNumber= null;
+
+/*****************************************************************************
+ * 1) We'll cache the "Question Associates" data after login to speed up 
+ *    repeated calls. That way we don't fetch it each time we show task details.
+ *****************************************************************************/
+let questionAssocCache = null; // We'll fetch once after login
 
 /*****************************************************************************
  * HELPER / UTILITY
@@ -315,16 +300,15 @@ function formatDateTime(d){
 }
 function computeCumulativeTime(st, sp){
   if(!st || !sp) return "";
-  const diff = sp - st; // ms
+  const diff = sp - st;
   const sec = Math.floor(diff/1000);
   const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
   const pad = x => (x<10?"0"+x:""+x);
   return `${h}:${pad(m)}:${pad(s)}`;
 }
-
-async function insertRow(url, rowArr){
+async function insertRow(url, rowArr) {
   const resp = await fetch(url, {
-    method: "POST",
+    method:"POST",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({ values: rowArr })
   });
@@ -334,7 +318,6 @@ async function insertRow(url, rowArr){
   }
   return resp.json();
 }
-
 async function updateBackend(rowNumber, newStatus, startTime, stopTime, notes) {
   const payload = { rowNumber };
   if(newStatus) payload.newStatus = newStatus;
@@ -343,7 +326,7 @@ async function updateBackend(rowNumber, newStatus, startTime, stopTime, notes) {
   if(notes)     payload.notes     = notes;
 
   const resp = await fetch(UPDATE_BACKEND_URL, {
-    method: "POST",
+    method:"POST",
     headers: { "Content-Type":"application/json" },
     body: JSON.stringify(payload)
   });
@@ -354,38 +337,66 @@ async function updateBackend(rowNumber, newStatus, startTime, stopTime, notes) {
   return resp.json();
 }
 
-function resetScreen(){
-  document.getElementById("statusOptions").style.display="none";
-  const note=document.getElementById("notes");
-  note.value="";
-  note.style.display="none";
-
-  document.querySelectorAll('input[name="stopStatus"]').forEach(r=>r.checked=false);
-
-  currentTask=null;
-  startTime=null;
-  currentRowNumber=null;
-  document.getElementById("taskDetail").innerHTML="";
-}
-function statusChosen(){
-  const chosen = document.querySelector('input[name="stopStatus"]:checked')?.value;
-  const note   = document.getElementById("notes");
-  // show #notes if "Issue" or "In Progress"
-  if(chosen==="In Progress" || chosen==="Issue") note.style.display="block";
-  else note.style.display="none";
-}
-function checkEnter(e){
-  if(e.key==="Enter") login();
+/*****************************************************************************
+ * 2) readQuestionAssociates => fetch if not cached
+ *    We'll do this after login, so we only do one request for the entire session
+ *****************************************************************************/
+async function readQuestionAssociates(){
+  if(questionAssocCache) return questionAssocCache; // already fetched
+  const resp = await fetch(QUESTION_ASSOC_URL);
+  if(!resp.ok){
+    console.warn("Failed to load Question Associates =>", resp.status);
+    return null;
+  }
+  const data = await resp.json();
+  questionAssocCache = data.values || null;
+  return questionAssocCache;
 }
 
 /*****************************************************************************
- * 1) LOGIN
+ * 3) findDirectQuestion => fallback logic:
+ *    - A=Client, B=Primary Contact, C=Secondary, D=Backup, E=Failsafe
+ *    - If no row => "Your Lead"
+ *    - If row => B->C->D => if any is non-empty => return the first
+ *      else => E
+ *****************************************************************************/
+function findDirectQuestionsFallback(clientName){
+  if(!questionAssocCache) return "Your Lead";
+  if(!clientName) return "Your Lead";
+
+  const headers = questionAssocCache[0] || [];
+  const data    = questionAssocCache.slice(1);
+  const clientCol   = headers.indexOf("Client");
+  const primaryCol  = headers.indexOf("Primary Contact");
+  const secondCol   = headers.indexOf("Secondary Contact");
+  const backupCol   = headers.indexOf("Backup Contact");
+  const failCol     = headers.indexOf("Failsafe Contact");
+  if(clientCol<0 || primaryCol<0 || secondCol<0 || backupCol<0 || failCol<0){
+    console.warn("Missing required columns in Question Associates.");
+    return "Your Lead";
+  }
+
+  const row = data.find(r => (r[clientCol]||"").trim().toLowerCase() === clientName.trim().toLowerCase());
+  if(!row) return "Your Lead";
+
+  const primary   = (row[primaryCol] ||"").trim();
+  const secondary = (row[secondCol]  ||"").trim();
+  const backup    = (row[backupCol]  ||"").trim();
+  const failsafe  = (row[failCol]    ||"").trim();
+
+  if(primary)   return primary;
+  if(secondary) return secondary;
+  if(backup)    return backup;
+  return failsafe || "Your Lead";
+}
+
+/*****************************************************************************
+ * 4) LOGIN
  *****************************************************************************/
 async function login(){
   setNotification("");
-  const user = document.getElementById("username").value.trim().toLowerCase();
-  const pass = document.getElementById("password").value.trim();
-
+  const user=document.getElementById("username").value.trim().toLowerCase();
+  const pass=document.getElementById("password").value.trim();
   highlightInput("username", !user);
   highlightInput("password", !pass);
   if(!user || !pass){
@@ -397,71 +408,61 @@ async function login(){
     return;
   }
 
-  const spin = document.getElementById("loginSpinner");
-  spin.style.display = "block";
-
-  try{
-    // 1) fetch LaSalle Pod
-    const r=await fetch(LASALLE_POD_URL);
-    const j=await r.json();
+  const spin=document.getElementById("loginSpinner");
+  spin.style.display="block";
+  try {
+    const res=await fetch(LASALLE_POD_URL);
+    const data=await res.json();
     spin.style.display="none";
 
-    if(!j.values || !Array.isArray(j.values) || j.values.length<2){
+    if(!data.values || !Array.isArray(data.values) || data.values.length<2){
       setNotification("LaSalle Pod data not found or invalid structure.", true);
       return;
     }
-    const headers=j.values[0];
-    const data   =j.values.slice(1);
+    const headers=data.values[0];
+    const rows=data.values.slice(1);
     const uIdx=headers.indexOf("Username");
     const fnIdx=headers.indexOf("First Name");
     const lnIdx=headers.indexOf("Last Name");
     if(uIdx<0 || fnIdx<0 || lnIdx<0){
-      setNotification("Missing columns in 'LaSalle Pod'.", true);
+      setNotification("Missing columns in 'LaSalle Pod'!", true);
       return;
     }
 
-    // find user row
-    const row = data.find(rr => (rr[uIdx]||"").trim().toLowerCase()===user);
-    if(!row){
+    const match = rows.find(r => (r[uIdx]||"").trim().toLowerCase()===user);
+    if(!match){
       setNotification("User not found in LaSalle Pod data.", true);
       return;
     }
-    const fn=(row[fnIdx]||"").trim(), ln=(row[lnIdx]||"").trim();
+    const fn=(match[fnIdx]||"").trim(), ln=(match[lnIdx]||"").trim();
     userFullName = fn+" "+ln;
 
-    // 2) Mark them active
-    await fetch(LOGIN_USER_URL, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ userFullName })
-    }).catch(e => console.error("loginUser =>", e));
+    // fetch question associates once
+    await readQuestionAssociates();
 
-    // 3) show main
-    document.getElementById("greeting").textContent="Hello, "+userFullName+"!";
+    // show main
+    document.getElementById("greeting").textContent = "Hello, "+userFullName+"!";
     document.getElementById("loginOverlay").style.display="none";
     document.getElementById("taskScreen").style.display="block";
-
-  }catch(e){
+  } catch(e){
     spin.style.display="none";
     setNotification("Error => "+e.message, true);
   }
 }
 
 /*****************************************************************************
- * 2) START TASK
+ * 5) START TASK
  *****************************************************************************/
 function startTaskClicked(){
   setNotification("");
   document.getElementById("startTaskBtn").style.display="none";
   showLoading(true);
-  loadReadyTaskForUser();
+  loadReadyTaskFromBackend();
 }
 
-async function loadReadyTaskForUser(){
-  try{
-    const assocParam = encodeURIComponent(userFullName.trim());
-    const url        = `${GET_BACKEND_URL}?associate=${assocParam}`;
-    const resp       = await fetch(url);
+async function loadReadyTaskFromBackend(){
+  try {
+    const resp=await fetch(GET_BACKEND_URL);
     if(!resp.ok){
       const txt=await resp.text();
       throw new Error(resp.status + " => " + txt);
@@ -469,36 +470,30 @@ async function loadReadyTaskForUser(){
     const j=await resp.json();
     showLoading(false);
 
-    if(!j.values || j.values.length<2){
-      setNotification("You are on call. No tasks found for you.", true);
+    if(!j.values){
+      setNotification("No 'values' found in the Backend tab.", true);
       document.getElementById("startTaskBtn").style.display="inline-block";
-      document.getElementById("startTaskBtn").innerText="Refresh";
-      document.getElementById("onCallModal").style.display="block";
-      resetScreen();
       return;
     }
 
-    const headers = j.values[0]; // original columns
-    const data    = j.values.slice(1);
-
+    const headers=j.values[0]||[];
+    const data   =j.values.slice(1);
     const assocIdx = headers.indexOf("Associate:");
     const statIdx  = headers.indexOf("Status:");
     if(assocIdx<0 || statIdx<0){
-      setNotification("Missing 'Associate:' or 'Status:' in Backend columns.", true);
+      setNotification("Missing 'Associate:' or 'Status:' in 'Backend' columns.", true);
       document.getElementById("startTaskBtn").style.display="inline-block";
       return;
     }
 
-    let found=null; 
-    let rowNum=null;
+    let found=null;
     for(let i=0; i<data.length; i++){
-      const rowArr       = data[i];
-      const actualRowNum = rowArr[0];
-      const assocCell    = (rowArr[assocIdx+1]||"").trim().toLowerCase();
-      const statCell     = (rowArr[statIdx+1] ||"").trim().toLowerCase();
-      if(assocCell===userFullName.toLowerCase() && statCell==="ready"){
+      const rowArr=data[i];
+      const assoc=(rowArr[assocIdx]||"").trim().toLowerCase();
+      const stat =(rowArr[statIdx] ||"").trim().toLowerCase();
+      if(assoc===userFullName.toLowerCase() && stat==="ready"){
+        currentRowNumber=i+2; // row index in the sheet (header is row1)
         found=rowArr;
-        rowNum=actualRowNum;
         break;
       }
     }
@@ -511,20 +506,19 @@ async function loadReadyTaskForUser(){
       return;
     }
 
-    currentRowNumber = rowNum;
-    currentTask      = convertRowToObj(found, headers);
-    startTime        = new Date();
-    const startStr   = formatDateTime(startTime);
+    currentTask = convertRowToObj(found, headers);
+    startTime   = new Date();
+    const startStr=formatDateTime(startTime);
 
-    // partial update => F=Started, B=startTime
+    // partial update => col B = startTime, col F="Started"
     await updateBackend(currentRowNumber, "Started", startStr, null, null);
 
     // Insert row => "Started"
-    const rowStart=[
+    const row=[
       "FALSE",
       startStr, // colB
-      "",
-      "",
+      "",       // colC
+      "",       // colD
       userFullName, // colE
       "Started",    // colF
       currentTask["Client:"],
@@ -540,15 +534,15 @@ async function loadReadyTaskForUser(){
       currentTask["Job Code:"],
       ""
     ];
-    await insertRow(TASK_DATA_URL, [rowStart]);
-    await insertRow(TASK_HISTORY_URL, [rowStart]);
+    await insertRow(TASK_DATA_URL, [row]);
+    await insertRow(TASK_HISTORY_URL, [row]);
 
     document.getElementById("startTaskBtn").style.display="none";
     document.getElementById("onCallModal").style.display="none";
     displayTaskDetails(currentTask);
     document.getElementById("statusOptions").style.display="block";
 
-  }catch(e){
+  } catch(e){
     showLoading(false);
     document.getElementById("startTaskBtn").style.display="inline-block";
     setNotification("Error => "+e.message, true);
@@ -556,96 +550,25 @@ async function loadReadyTaskForUser(){
 }
 
 function convertRowToObj(rowArr, headers){
-  // rowArr[0] => rowNumber
-  // rowArr[1..N] => columns
   const obj={};
-  for(let i=1; i<rowArr.length; i++){
-    const hdr = headers[i-1];
-    obj[hdr]  = rowArr[i]||"";
-  }
+  headers.forEach((hdr,i)=>{
+    obj[hdr] = rowArr[i]||"";
+  });
   return obj;
 }
 
 /*****************************************************************************
- * 2.5) "Direct Questions To" fallback logic
- * 
- * We'll do:
- *  - Read questionAssociates
- *  - Read /activeUsers
- *  - Match the row for (Client:)
- *  - Check columns B->C->D for an active user
- *  - If none found, fallback E
- *  - If no row found at all, return "Your Lead"
- *****************************************************************************/
-async function findDirectQuestionsContact(clientName){
-  if(!clientName) return "Your Lead";
-
-  try {
-    // 1) fetch questionAssociates
-    const qaResp = await fetch(QUESTION_ASSOC_URL);
-    const qaData = await qaResp.json();
-    if(!qaData.values || qaData.values.length<2){
-      // no data
-      return "Your Lead";
-    }
-    const qaHeaders = qaData.values[0];
-    const qaRows    = qaData.values.slice(1);
-
-    // Indices: A=Client, B=Primary, C=Secondary, D=Backup, E=Failsafe
-    const clientCol   = qaHeaders.indexOf("Client");
-    const primaryCol  = qaHeaders.indexOf("Primary Contact");
-    const secondCol   = qaHeaders.indexOf("Secondary Contact");
-    const backupCol   = qaHeaders.indexOf("Backup Contact");
-    const failsafeCol = qaHeaders.indexOf("Failsafe Contact");
-    if(clientCol<0 || primaryCol<0 || secondCol<0 || backupCol<0 || failsafeCol<0){
-      console.warn("Question Associates missing required columns.");
-      return "Your Lead";
-    }
-
-    // 2) fetch activeUsers
-    const auResp = await fetch(ACTIVE_USERS_URL);
-    const auJson = await auResp.json();
-    const activeArr = auJson.active || [];
-    const activeSet = new Set(activeArr.map(s=>s.trim().toLowerCase()));
-
-    // 3) find row for clientName
-    const lowClient = clientName.trim().toLowerCase();
-    const row = qaRows.find(r => (r[clientCol]||"").trim().toLowerCase()===lowClient);
-    if(!row){
-      // no row => fallback
-      return "Your Lead";
-    }
-
-    // get B->E
-    const primary   = (row[primaryCol]  ||"").trim();
-    const secondary = (row[secondCol]   ||"").trim();
-    const backup    = (row[backupCol]   ||"").trim();
-    const failsafe  = (row[failsafeCol] ||"").trim();
-
-    // 4) check B->C->D for membership in activeSet
-    if(primary && activeSet.has(primary.toLowerCase()))   return primary;
-    if(secondary && activeSet.has(secondary.toLowerCase())) return secondary;
-    if(backup && activeSet.has(backup.toLowerCase()))       return backup;
-
-    // fallback to E
-    return failsafe || "Your Lead";
-  } catch(e){
-    console.error("findDirectQuestionsContact =>", e);
-    return "Your Lead";
-  }
-}
-
-/*****************************************************************************
- * 3) displayTaskDetails => with fallback logic
+ * 6) displayTaskDetails => direct question fallback logic
  *****************************************************************************/
 async function displayTaskDetails(task){
   if(!task){
-    document.getElementById("taskDetail").innerHTML="<p>No tasks to display.</p>";
+    document.getElementById("taskDetail").innerHTML="<p>No task to display.</p>";
     return;
   }
-  // We'll show the fallback "Direct Questions To" 
-  const clientName = task["Client:"] || "";
-  const contact = await findDirectQuestionsContact(clientName);
+
+  // We assume questionAssocCache has been loaded after login
+  const clientName = (task["Client:"]||"").trim();
+  const direct = findDirectQuestionsFallback(clientName);
 
   const html=`
     <div class="details-grid">
@@ -655,7 +578,7 @@ async function displayTaskDetails(task){
       <div><b>Parameter 2:</b> ${task["Parameter 2:"]||""}</div>
       <div><b>Deliverable Name:</b> ${task["Deliverable Name:"]||""}</div>
       <div><b>Production Notes:</b> ${task["Production Notes:"]||""}</div>
-      <div><b>Direct Questions To:</b> ${contact}</div>
+      <div><b>Direct Questions To:</b> ${direct}</div>
       <div><b>Due Time:</b> ${task["Due Time:"]||""}</div>
     </div>
   `;
@@ -663,7 +586,7 @@ async function displayTaskDetails(task){
 }
 
 /*****************************************************************************
- * 4) STOP TASK
+ * 7) STOP TASK
  *****************************************************************************/
 async function stopTask(){
   setNotification("");
@@ -672,7 +595,7 @@ async function stopTask(){
   showLoading(true);
 
   if(!currentTask){
-    setNotification("No current task to stop.", true);
+    setNotification("No current task to stop.",true);
     endStopSpinner();
     return;
   }
@@ -682,7 +605,7 @@ async function stopTask(){
     if(r.checked) chosen=r.value;
   });
   if(!chosen){
-    setNotification("Please select a status first.", true);
+    setNotification("Please select a status first.",true);
     endStopSpinner();
     return;
   }
@@ -691,27 +614,27 @@ async function stopTask(){
   const requiresNote=(chosen==="In Progress"||chosen==="Issue");
   highlightInput("notes", requiresNote && !noteVal);
   if(requiresNote && !noteVal){
-    setNotification(`Notes are required for status: ${chosen}`, true);
+    setNotification(`Notes are required for status: ${chosen}`,true);
     endStopSpinner();
     return;
   }
 
   try{
-    const stopNow = new Date();
-    const stopStr = formatDateTime(stopNow);
-    const cTime   = computeCumulativeTime(startTime, stopNow);
+    const stopNow=new Date();
+    const stopStr=formatDateTime(stopNow);
+    const cTime=computeCumulativeTime(startTime, stopNow);
 
-    // partial update => set colC= stopStr, colF= chosen, colP= noteVal
+    // partial update => colC=stopTime, colF=chosen, colP=notes
     await updateBackend(currentRowNumber, chosen, null, stopStr, noteVal);
 
-    // Insert row => "Stopped" in Task Data & Task History
-    const rowStopped=[
+    // Insert row => "Stopped"
+    const row=[
       "FALSE",
-      formatDateTime(startTime)||"",
-      stopStr,
-      "",
-      userFullName,
-      chosen,
+      formatDateTime(startTime)||"", // colB
+      stopStr,                      // colC
+      "",                           // colD
+      userFullName,                 // colE
+      chosen,                       // colF
       currentTask["Client:"],
       currentTask["Task:"],
       currentTask["Deliverable Name:"],
@@ -721,16 +644,16 @@ async function stopTask(){
       currentTask["Production Notes:"],
       currentTask["Due Time:"],
       currentTask["Due Date:"],
-      noteVal,
+      noteVal,                      // colP
       currentTask["Job Code:"],
       cTime
     ];
-    await insertRow(TASK_DATA_URL, [rowStopped]);
-    await insertRow(TASK_HISTORY_URL, [rowStopped]);
+    await insertRow(TASK_DATA_URL, [row]);
+    await insertRow(TASK_HISTORY_URL, [row]);
 
-  }catch(e){
+  } catch(e){
     setNotification("Error stopping task => "+e.message, true);
-  }finally{
+  } finally {
     resetScreen();
     endStopSpinner();
     document.getElementById("startTaskBtn").style.display="inline-block";
@@ -744,25 +667,17 @@ function endStopSpinner(){
 }
 
 /*****************************************************************************
- * 5) ON CALL / LOGOUT
+ * 8) ON CALL / LOGOUT
  *****************************************************************************/
 function closeOnCall(){
   document.getElementById("onCallModal").style.display="none";
   resetScreen();
 }
-
 function logout(){
-  // Mark them inactive
-  fetch(LOGOUT_USER_URL, {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ userFullName })
-  }).catch(e => console.error("logoutUser =>", e));
-
-  // Then do your existing cleanup
   setNotification("");
   resetScreen();
   userFullName="";
+  questionAssocCache=null; // clear the cache
   document.getElementById("taskScreen").style.display="none";
   document.getElementById("loginOverlay").style.display="flex";
   document.getElementById("username").value="";
